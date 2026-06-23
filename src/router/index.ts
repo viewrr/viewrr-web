@@ -15,6 +15,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../components/Player.vue'),
     props: true,
   },
+  { path: '/search', name: 'search', component: () => import('../components/Search.vue') },
+  { path: '/login', name: 'login', component: () => import('../components/Login.vue') },
   // Unknown paths fall back to Home rather than rendering a blank <RouterView/>.
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

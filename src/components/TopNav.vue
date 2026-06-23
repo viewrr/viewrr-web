@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { useSpatialNav } from '../composables/useSpatialNav'
+
+const router = useRouter()
 
 const links = ['Home', 'Movies', 'Shows', 'Music']
 
@@ -22,13 +25,18 @@ useSpatialNav()
         >{{ link }}</a>
       </div>
       <div class="ml-auto flex items-center gap-5">
-        <button data-nav class="size-9 grid place-items-center rounded-full hover:bg-white/10" aria-label="Search">
+        <button data-nav class="size-9 grid place-items-center rounded-full hover:bg-white/10" aria-label="Search" @click="router.push('/search')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.3-4.3" stroke-linecap="round" />
           </svg>
         </button>
-        <div class="size-9 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600" />
+        <button
+          data-nav
+          aria-label="Account"
+          class="size-9 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600"
+          @click="router.push('/login')"
+        />
       </div>
     </div>
   </nav>

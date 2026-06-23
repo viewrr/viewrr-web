@@ -8,7 +8,7 @@ const route = useRoute()
 
 <template>
   <div class="min-h-full bg-app text-fg">
-    <TopNav v-if="route.name !== 'player'" />
+    <TopNav v-if="route.name !== 'player' && route.name !== 'login'" />
     <RouterView />
   </div>
 </template>
