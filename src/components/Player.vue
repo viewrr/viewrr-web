@@ -68,7 +68,7 @@ function goBack() {
     <!-- Backdrop as video placeholder (no real stream yet). -->
     <img
       v-if="title"
-      :src="title.backdrop"
+      :src="title.backdrop ?? ''"
       :alt="title.title"
       class="absolute inset-0 h-full w-full object-cover"
     />

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import { api } from '../api/client'
 import { CATALOG, GENRES } from '../data/catalog'
 import type { Title } from '../types'
 import Shelf from './Shelf.vue'
@@ -9,16 +10,28 @@ import PosterCard from './PosterCard.vue'
 const props = defineProps<{ id: string }>()
 const router = useRouter()
 
-const title = computed<Title | undefined>(() =>
-  CATALOG.find((t) => t.id === props.id),
-)
+// Fetch real detail from /media/{id}; fall back to mock when the Hub is down or
+// the endpoint is still a Phase-20 gap. mock find is the instant first paint.
+const title = ref<Title | undefined>(CATALOG.find((t) => t.id === props.id))
+watchEffect(async () => {
+  try {
+    title.value = await api.mediaDetail(props.id)
+  } catch {
+    title.value = CATALOG.find((t) => t.id === props.id)
+  }
+})
 
-// Stub metadata — Title carries no year/genre/runtime yet (#106 step 3 wires
-// the real API). Derive a stable genre from the id so it doesn't flicker.
+// Stable genre from id when the item carries none yet.
 const stubGenre = computed(() => {
   const n = Number(props.id)
   const idx = Number.isFinite(n) ? Math.abs(n) % GENRES.length : 0
   return GENRES[idx]
+})
+
+const runtime = computed(() => {
+  const s = title.value?.durationSecs
+  if (!s) return '1h 48m'
+  return `${Math.floor(s / 3600)}h ${Math.round((s % 3600) / 60)}m`
 })
 
 // "More Like This": other catalog entries, excluding the current title.
@@ -45,7 +58,7 @@ function goHome() {
     <section class="relative">
       <div class="relative h-[64vh] min-h-[420px] w-full overflow-hidden">
         <img
-          :src="title.backdrop"
+          :src="title.backdrop ?? ''"
           :alt="title.title"
           class="absolute inset-0 h-full w-full object-cover"
         />
@@ -62,14 +75,22 @@ function goHome() {
           {{ title.title }}
         </h1>
 
-        <!-- Stub metadata row: year · genre · runtime placeholders -->
+        <!-- Real fields when present (#104); stubs until the API fills them. -->
         <div class="flex items-center gap-2 text-sm text-soft">
-          <span>2025</span>
+          <span>{{ title.year ?? 2025 }}</span>
           <span class="text-muted">·</span>
           <span>{{ stubGenre }}</span>
           <span class="text-muted">·</span>
-          <span>1h 48m</span>
+          <span>{{ runtime }}</span>
+          <template v-if="title.contentRating">
+            <span class="text-muted">·</span>
+            <span>{{ title.contentRating }}</span>
+          </template>
         </div>
+
+        <p v-if="title.overview" class="max-w-2xl text-sm text-soft/90 line-clamp-3">
+          {{ title.overview }}
+        </p>
 
         <div class="pt-1">
           <button

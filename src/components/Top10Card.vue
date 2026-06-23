@@ -10,7 +10,7 @@ defineEmits<{ select: [] }>()
     <span class="num text-[110px] w-[58px] text-right -mr-1">{{ rank }}</span>
     <button data-nav class="text-left" @click="$emit('select')">
       <img
-        :src="title.poster"
+        :src="title.poster ?? ''"
         :alt="title.title"
         class="card w-[150px] aspect-[2/3] object-cover rounded-card"
       />

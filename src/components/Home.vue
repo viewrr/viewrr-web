@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { api } from '../api/client'
 import { CATALOG, GENRES, BADGES } from '../data/catalog'
 import type { Title } from '../types'
 import Shelf from './Shelf.vue'
@@ -9,9 +11,22 @@ import LandscapeCard from './LandscapeCard.vue'
 
 const router = useRouter()
 
-const top10 = CATALOG.slice(0, 10)
-const recent = CATALOG.slice(8, 20)
-const featured = CATALOG.slice(0, 8)
+// ponytail: mock is both the instant first paint AND the fallback when the Hub
+// is unreachable (dev without backend). Real rows replace it when a call resolves.
+const top10 = ref<Title[]>(CATALOG.slice(0, 10))
+const recent = ref<Title[]>(CATALOG.slice(8, 20))
+const featured = ref<Title[]>(CATALOG.slice(0, 8))
+
+onMounted(async () => {
+  const [t, r, f] = await Promise.allSettled([
+    api.top10(),
+    api.recentlyAdded(),
+    api.featured(),
+  ])
+  if (t.status === 'fulfilled' && t.value.length) top10.value = t.value.slice(0, 10)
+  if (r.status === 'fulfilled' && r.value.length) recent.value = r.value
+  if (f.status === 'fulfilled' && f.value.length) featured.value = f.value.slice(0, 8)
+})
 
 function select(t: Title) {
   router.push(`/title/${t.id}`)

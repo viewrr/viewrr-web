@@ -11,7 +11,7 @@ defineEmits<{ select: [] }>()
     class="card shrink-0 relative rounded-large overflow-hidden w-[460px]"
     @click="$emit('select')"
   >
-    <img :src="title.backdrop" :alt="title.title" class="w-full aspect-video object-cover" />
+    <img :src="title.backdrop ?? ''" :alt="title.title" class="w-full aspect-video object-cover" />
     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
     <span
       v-if="badge"
