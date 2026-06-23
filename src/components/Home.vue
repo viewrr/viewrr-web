@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { CATALOG, GENRES, BADGES } from '../data/catalog'
 import type { Title } from '../types'
 import Shelf from './Shelf.vue'
@@ -6,12 +7,15 @@ import PosterCard from './PosterCard.vue'
 import Top10Card from './Top10Card.vue'
 import LandscapeCard from './LandscapeCard.vue'
 
+const router = useRouter()
+
 const top10 = CATALOG.slice(0, 10)
 const recent = CATALOG.slice(8, 20)
 const featured = CATALOG.slice(0, 8)
 
-// ponytail: player/detail navigation lands later in #106; stub for now.
-function select(_t: Title) {}
+function select(t: Title) {
+  router.push(`/title/${t.id}`)
+}
 </script>
 
 <template>
