@@ -12,7 +12,7 @@ defineEmits<{ select: [] }>()
 </script>
 
 <template>
-  <button class="shrink-0 text-left" @click="$emit('select')">
+  <button data-nav class="shrink-0 text-left" @click="$emit('select')">
     <div class="relative w-[150px]">
       <img
         :src="title.poster"

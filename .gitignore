@@ -26,3 +26,6 @@ dist-ssr
 # tooling
 .serena/
 .mcp_data/
+
+# claude worktrees/local
+.claude/
