@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api/client'
 import { CATALOG, GENRES } from '../data/catalog'
@@ -50,6 +50,15 @@ function openTitle(t: Title) {
 function goHome() {
   router.push('/')
 }
+
+// Escape/Back returns to where you came from (home on a deep link).
+function onKey(e: KeyboardEvent) {
+  if (e.key === 'Escape' || e.key === 'Backspace') {
+    window.history.length > 1 ? router.back() : router.push('/')
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+import { api } from '../api/client'
+import { API_BASE } from '../api/config'
 import { CATALOG } from '../data/catalog'
 import type { Title } from '../types'
+import type { WatchEventType } from '../api/types'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -11,18 +14,32 @@ const title = computed<Title | undefined>(() =>
   CATALOG.find((t) => t.id === props.id),
 )
 
-// No real playback yet (#106 step 3 wires the HLS stream). These drive the
-// chrome only: a play/pause toggle and a static scrubber position so the
-// accent fill is visible.
-const DURATION_SECONDS = 108 * 60 // matches the 1h48m metadata stub on Detail
+const video = ref<HTMLVideoElement | null>(null)
+const hasVideo = ref(false) // true once a real stream is attached
 
+// Real playback state when a stream is attached; otherwise these drive the
+// demo chrome (so the player still looks alive without a backend).
+const DEMO_DURATION = 108 * 60
 const playing = ref(true)
-const progress = ref(34) // percent, 0–100
+const currentSecs = ref(0)
+const durationSecs = ref(DEMO_DURATION)
+const demoProgress = ref(34) // percent, used only in demo mode
 
-const elapsed = computed(() => fmt((progress.value / 100) * DURATION_SECONDS))
-const remaining = computed(
-  () => '-' + fmt(DURATION_SECONDS - (progress.value / 100) * DURATION_SECONDS),
+const progress = computed(() =>
+  hasVideo.value
+    ? durationSecs.value
+      ? (currentSecs.value / durationSecs.value) * 100
+      : 0
+    : demoProgress.value,
 )
+const elapsed = computed(() =>
+  fmt(hasVideo.value ? currentSecs.value : (demoProgress.value / 100) * DEMO_DURATION),
+)
+const remaining = computed(() => {
+  const dur = hasVideo.value ? durationSecs.value : DEMO_DURATION
+  const cur = hasVideo.value ? currentSecs.value : (demoProgress.value / 100) * DEMO_DURATION
+  return '-' + fmt(dur - cur)
+})
 
 function fmt(totalSeconds: number): string {
   const s = Math.max(0, Math.round(totalSeconds))
@@ -34,18 +51,122 @@ function fmt(totalSeconds: number): string {
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
 }
 
+// --- Watch progress (#104 /watch-events): best-effort, never blocks playback ---
+const sessionId =
+  typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `s-${props.id}`
+let lastReport = 0
+function report(eventType: WatchEventType) {
+  api
+    .postWatchEvent({
+      mediaId: props.id,
+      positionSecs: Math.round(currentSecs.value),
+      eventType,
+      sessionId,
+    })
+    .catch(() => {})
+}
+
+// --- Stream resolution: /playback/{id} → stremio-key HLS → demo fallback ---
+let hls: { destroy(): void } | null = null // hls.js instance, loaded on demand
+
+async function resolveSrc(): Promise<{ url: string; start: number } | null> {
+  try {
+    const pb = await api.playback(props.id)
+    return { url: pb.url, start: pb.startPositionSecs ?? 0 }
+  } catch {
+    // The one playback endpoint isn't live yet (Phase-20 gap) — try the
+    // device stremio-key flow the server already exposes.
+    try {
+      const { key } = await api.mintStremioKey()
+      return { url: `${API_BASE}/stream/k/${key}/${props.id}/playlist.m3u8`, start: 0 }
+    } catch {
+      return null // no backend → demo chrome
+    }
+  }
+}
+
+async function attach(el: HTMLVideoElement, url: string, start: number) {
+  if (el.canPlayType('application/vnd.apple.mpegurl')) {
+    el.src = url // Safari plays HLS natively
+  } else {
+    const { default: Hls } = await import('hls.js') // load only when needed
+    if (Hls.isSupported()) {
+      const inst = new Hls()
+      hls = inst
+      inst.loadSource(url)
+      inst.attachMedia(el)
+    } else {
+      el.src = url
+    }
+  }
+  if (start > 0) el.currentTime = start
+  el.play().catch(() => {})
+}
+
+function onKey(e: KeyboardEvent) {
+  if (e.key === 'Escape' || e.key === 'Backspace') goBack()
+}
+
+onMounted(async () => {
+  window.addEventListener('keydown', onKey)
+  const src = await resolveSrc()
+  const el = video.value
+  if (!src || !el) return // demo mode
+  hasVideo.value = true
+  el.addEventListener('timeupdate', () => {
+    currentSecs.value = el.currentTime
+    if (el.currentTime - lastReport >= 15) {
+      lastReport = el.currentTime
+      report('progress')
+    }
+  })
+  el.addEventListener('durationchange', () => (durationSecs.value = el.duration || 0))
+  el.addEventListener('play', () => {
+    playing.value = true
+    report('start')
+  })
+  el.addEventListener('pause', () => {
+    playing.value = false
+    report('pause')
+  })
+  attach(el, src.url, src.start)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  if (hasVideo.value) report('stop')
+  hls?.destroy()
+})
+
 function togglePlay() {
-  playing.value = !playing.value
+  const el = video.value
+  if (hasVideo.value && el) {
+    el.paused ? el.play().catch(() => {}) : el.pause()
+  } else {
+    playing.value = !playing.value
+  }
 }
 
 function seekRelative(deltaSeconds: number) {
-  const deltaPct = (deltaSeconds / DURATION_SECONDS) * 100
-  progress.value = clamp(progress.value + deltaPct, 0, 100)
+  const el = video.value
+  if (hasVideo.value && el) {
+    el.currentTime = clamp(el.currentTime + deltaSeconds, 0, durationSecs.value || el.currentTime)
+  } else {
+    const deltaPct = (deltaSeconds / DEMO_DURATION) * 100
+    demoProgress.value = clamp(demoProgress.value + deltaPct, 0, 100)
+  }
 }
 
 function onScrub(event: Event) {
-  const target = event.target as HTMLInputElement
-  progress.value = clamp(Number(target.value), 0, 100)
+  const pct = clamp(Number((event.target as HTMLInputElement).value), 0, 100)
+  const el = video.value
+  if (hasVideo.value && el && durationSecs.value) {
+    el.currentTime = (pct / 100) * durationSecs.value
+  } else {
+    demoProgress.value = pct
+  }
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -65,14 +186,22 @@ function goBack() {
 
 <template>
   <div class="fixed inset-0 bg-black text-fg select-none">
-    <!-- Backdrop as video placeholder (no real stream yet). -->
+    <!-- Real stream when resolved; backdrop poster behind it as the first paint
+         and the fallback when no stream is available. -->
+    <video
+      ref="video"
+      class="absolute inset-0 h-full w-full object-contain bg-black"
+      :poster="title?.backdrop ?? ''"
+      playsinline
+      @click="togglePlay"
+    ></video>
     <img
-      v-if="title"
+      v-if="!hasVideo && title"
       :src="title.backdrop ?? ''"
       :alt="title.title"
       class="absolute inset-0 h-full w-full object-cover"
     />
-    <div class="absolute inset-0 bg-black/35"></div>
+    <div class="absolute inset-0 bg-black/35" :class="{ 'pointer-events-none': hasVideo }"></div>
     <!-- Top + bottom scrims so chrome stays legible over any frame. -->
     <div class="player-scrim-top absolute inset-x-0 top-0 h-40"></div>
     <div class="player-scrim-bottom absolute inset-x-0 bottom-0 h-56"></div>

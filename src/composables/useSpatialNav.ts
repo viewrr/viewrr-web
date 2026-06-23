@@ -32,9 +32,15 @@ function focusables(): HTMLElement[] {
 /** Roving tabindex: the active target is 0, everything else -1. */
 function setRoving(active: HTMLElement | null): void {
   const items = focusables()
-  for (const el of items) el.tabIndex = el === active ? 0 : -1
-  // If nothing is active yet, make the first item reachable by Tab.
-  if (!active && items.length) items[0].tabIndex = 0
+  const fallback = active ?? preferredInitial()
+  for (const el of items) el.tabIndex = el === fallback ? 0 : -1
+}
+
+// Initial focus target: the first card inside a content row, not the first nav
+// link. Falls back to the first focusable if no row exists yet.
+function preferredInitial(): HTMLElement | null {
+  const items = focusables()
+  return items.find((el) => el.closest('.row')) ?? items[0] ?? null
 }
 
 function center(rect: DOMRect): { x: number; y: number } {
@@ -94,14 +100,17 @@ function moveFocus(el: HTMLElement): void {
 
 function onKeydown(e: KeyboardEvent): void {
   // Enter: let native activation fire (cards are <button>); no preventDefault.
-  // Escape / Back: no-op for now.
-  // TODO(#107): wire Escape/Back to route-level "back" once Detail/Player land.
+  // Escape/Back is handled at the route level (Detail/Player → router.back).
   const dir = KEY_TO_DIR[e.key]
   if (!dir) return
 
   const active = document.activeElement as HTMLElement | null
+  // Origin = the focused nav element, else the current roving target (first
+  // card after seed), else the first focusable. This keeps the first arrow
+  // press starting on a card rather than the first nav link.
+  const roving = focusables().find((el) => el.tabIndex === 0)
   const origin =
-    active && active.matches(SELECTOR) ? active : focusables()[0] ?? null
+    active && active.matches(SELECTOR) ? active : roving ?? focusables()[0] ?? null
   if (!origin) return
 
   const target = bestCandidate(origin, dir)
