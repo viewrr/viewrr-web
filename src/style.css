@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* viewrr design tokens → Tailwind v4 theme.
+   Source of truth: design/tokens.json + DESIGN.md (Apple-TV language). */
+@theme {
+  /* color */
+  --color-page: #0b0b0d;
+  --color-app: #1c1c1e;
+  --color-surface: #161617;
+  --color-glass: rgba(20, 20, 22, 0.6);
+  --color-fg: #ffffff;
+  --color-muted: rgba(255, 255, 255, 0.55);
+  --color-soft: rgba(255, 255, 255, 0.70);
+  --color-accent: #ff5470;
+  --color-focus: rgba(255, 255, 255, 0.92);
+
+  /* radius (pill = rounded-full) */
+  --radius-card: 12px;
+  --radius-large: 16px;
+
+  /* type */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+
+  /* spacing (named, Apple-TV layout) */
+  --spacing-content-x: 40px;
+  --spacing-content-y: 32px;
+  --spacing-row: 16px;
+  --spacing-top10: 24px;
+  --spacing-section: 40px;
+
+  /* motion */
+  --ease-tv: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
