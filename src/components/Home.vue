@@ -41,7 +41,7 @@ function select(t: Title) {
         :key="t.id"
         :title="t"
         :rank="i + 1"
-        :caption="GENRES[i % GENRES.length]"
+        :caption="t.genres?.[0] ?? GENRES[i % GENRES.length]"
         @select="select(t)"
       />
     </Shelf>

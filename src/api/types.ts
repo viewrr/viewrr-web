@@ -14,6 +14,7 @@ export interface MediaItem {
   overview?: string | null
   durationSecs?: number
   contentRating?: string
+  genres?: string[] // not in v0 contract yet; rendered when the API adds it
 }
 
 export interface ContinueWatchingItem extends MediaItem {

@@ -21,8 +21,9 @@ watchEffect(async () => {
   }
 })
 
-// Stable genre from id when the item carries none yet.
+// Real genre when the item carries one; stable placeholder from id otherwise.
 const stubGenre = computed(() => {
+  if (title.value?.genres?.length) return title.value.genres[0]
   const n = Number(props.id)
   const idx = Number.isFinite(n) ? Math.abs(n) % GENRES.length : 0
   return GENRES[idx]
