@@ -3,6 +3,19 @@
 You are picking up the **viewrr web + TV client**. This doc is your cold-start. Read it
 top to bottom, then DESIGN.md, then open `design/index.html`.
 
+## STATUS (2026-06-24) — Phase 19 milestone landed
+App scaffolded and running (`bun run dev`). All four milestone issues built + verified in real Chrome:
+- **#103 ✅** Vue 3 + TS + Vite + **Tailwind v4** (CSS-first `@theme`, not `tailwind.config.js`); `design/tokens.json` → `src/style.css @theme`. **bun, not npm.**
+- **#104 ✅** Typed API client in `src/api/` (types/http/auth/client) mirroring `client-api.md`. Bearer + 401→refresh; localStorage tokens (no pinia). Home/Detail call real endpoints with **mock fallback** (mock = instant paint + degrade when Hub down). `Title` = contract `MediaItem`.
+- **#106 ✅** Home (3 shelves) + Detail + Player + vue-router (`/`, `/title/:id`, `/watch/:id`). Real **HLS playback** via `/playback/{id}` → stremio-key fallback → demo backdrop; hls.js dynamic-imported; `/watch-events` on play/pause/stop.
+- **#107 ✅** `useSpatialNav` composable: geometric D-pad arrows, roving tabindex (seeds first **card**), `scrollIntoView` centering, Escape/Back → `router.back`. Player immersive (no TopNav).
+
+**Not done / next:** login **UI** (auth client exists, needs backend+creds); **search** UI (TopNav search is a no-op; `/media/search` exists); real genres (still placeholder labels); end-to-end test vs a running Hub; **Tailwind Plus** components (licensed copy-paste — pull when a screen needs one). Backend gaps still 🔜: `/home/top`, `/home/featured`, `/media/{id}`, `/playback/{id}` (in contract's Phase-20 list).
+
+**Gotcha for parallel agents:** isolated worktrees fork from origin default, not local HEAD — commit before spawning.
+
+*The cold-start brief below predates this work — where it says Tailwind v3 / `npm` / "scaffold from scratch", the STATUS above wins.*
+
 ## What viewrr is
 Self-hosted FOSS OTT platform (Jellyfin alternative). Backend: Kotlin/Ktor, repo
 [`viewrr/viewrr`](https://github.com/viewrr/viewrr). It is becoming a distributed
