@@ -33,6 +33,38 @@
   --ease-tv: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
+/* Apple-TV interaction primitives (from design/index.html, tokenized).
+   focus-visible mirrors hover so D-pad/remote focus works (#107). */
+@layer components {
+  .card {
+    transition: transform 0.25s var(--ease-tv), box-shadow 0.25s;
+  }
+  .card:hover,
+  .card:focus-visible {
+    transform: scale(1.06);
+    box-shadow: 0 18px 44px -12px rgba(0, 0, 0, 0.85),
+      0 0 0 3px var(--color-focus);
+    z-index: 10;
+    outline: none;
+  }
+  .row {
+    scrollbar-width: none;
+  }
+  .row::-webkit-scrollbar {
+    display: none;
+  }
+  .num {
+    font-weight: 800;
+    color: var(--color-focus);
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+    line-height: 0.8;
+  }
+  .glass {
+    backdrop-filter: blur(24px) saturate(180%);
+    background: var(--color-glass);
+  }
+}
+
 html,
 body,
 #app {
