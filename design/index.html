@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>viewrr — Apple-TV design mock</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{accent:'#ff5470'}}}}</script>
+<style>
+  :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,sans-serif;}
+  body{background:#0b0b0d;}
+  .app{background:#1c1c1e;}
+  /* focus ring lives on the rounded poster itself, so the ring inherits its radius */
+  .card{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s;}
+  .card:hover{transform:scale(1.06);box-shadow:0 18px 44px -12px rgba(0,0,0,.85),0 0 0 3px rgba(255,255,255,.92);z-index:10;outline:none;}
+  .row::-webkit-scrollbar{display:none;} .row{scrollbar-width:none;}
+  .num{font-weight:800;color:rgba(255,255,255,.92);text-shadow:0 2px 18px rgba(0,0,0,.6);line-height:.8;}
+  .glass{backdrop-filter:blur(24px) saturate(180%);background:rgba(20,20,22,.6);}
+</style>
+</head>
+<body class="text-white p-6">
+<div class="app max-w-[1700px] mx-auto rounded-2xl overflow-hidden shadow-2xl h-[1000px] ring-1 ring-white/5 relative">
+
+  <!-- traffic lights -->
+  <div class="absolute top-4 left-5 z-40 flex gap-2"><span class="size-3 rounded-full bg-[#ff5f57]"></span><span class="size-3 rounded-full bg-[#febc2e]"></span><span class="size-3 rounded-full bg-[#28c840]"></span></div>
+
+  <!-- ===== HOME ===== -->
+  <main id="home" class="absolute inset-0 overflow-y-auto">
+    <!-- top nav -->
+    <nav class="sticky top-0 z-30 glass">
+      <div class="h-16 pl-24 pr-10 flex items-center gap-9">
+        <span class="text-xl font-semibold tracking-tight">viewrr</span>
+        <div class="flex items-center gap-7 text-[15px] text-white/55">
+          <a class="text-white font-medium" href="#">Home</a>
+          <a class="hover:text-white" href="#">Movies</a>
+          <a class="hover:text-white" href="#">Shows</a>
+          <a class="hover:text-white" href="#">Music</a>
+        </div>
+        <div class="ml-auto flex items-center gap-5">
+          <button class="size-9 grid place-items-center rounded-full hover:bg-white/10">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+          </button>
+          <div class="size-9 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600"></div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="px-10 py-8 space-y-10">
+      <section>
+        <h2 class="text-[22px] font-bold mb-4 flex items-center gap-1">Top 10 Movies this week <span class="text-white/40">›</span></h2>
+        <div class="row flex gap-6 overflow-x-auto pb-3" id="top10"></div>
+      </section>
+      <section>
+        <h2 class="text-[22px] font-bold mb-4 flex items-center gap-1">Recently Added <span class="text-white/40">›</span></h2>
+        <div class="row flex gap-4 overflow-x-auto pb-3" id="recent"></div>
+      </section>
+      <section>
+        <h2 class="text-[22px] font-bold mb-4 flex items-center gap-1">Featured <span class="text-white/40">›</span></h2>
+        <div class="row flex gap-5 overflow-x-auto pb-3" id="featured"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ===== PLAYER ===== -->
+  <div id="player" class="hidden absolute inset-0 bg-black">
+    <img id="pbg" class="absolute inset-0 w-full h-full object-cover opacity-60"/>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/50"></div>
+    <div class="absolute top-0 inset-x-0 p-8 flex items-center gap-4">
+      <button onclick="show('home')" class="size-11 grid place-items-center rounded-full bg-white/10 backdrop-blur hover:bg-white/20">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div><div id="ptitle" class="font-semibold text-lg"></div><div class="text-white/50 text-sm">4K HDR · Dolby Atmos</div></div>
+    </div>
+    <div class="absolute bottom-0 inset-x-0 p-10">
+      <div class="max-w-[1300px] mx-auto">
+        <div class="flex items-center gap-3 text-sm text-white/70 mb-5"><span>48:12</span>
+          <div class="flex-1 h-1.5 rounded-full bg-white/25 relative"><div class="absolute inset-y-0 left-0 w-[42%] rounded-full bg-accent"></div><div class="absolute top-1/2 left-[42%] -translate-y-1/2 size-3.5 rounded-full bg-white shadow"></div></div>
+          <span>2:14:00</span></div>
+        <div class="relative flex items-center justify-center gap-10 text-white/85" id="transport"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+  const D=window.DATA||[]; const genres=['Action','Comedy','Thriller','Drama','Sci-Fi','Crime'];
+  const badges=['New Season','New Episode Wednesdays','All Episodes Now','Series Premiere'];
+  function show(id){document.getElementById('home').classList.toggle('hidden',id!=='home');document.getElementById('player').classList.toggle('hidden',id!=='player');}
+  function play(i){const m=D[i]||D[0];document.getElementById('pbg').src=m.b;document.getElementById('ptitle').textContent=m.t;show('player');}
+
+  // clean line/solid SVG transport icons (no emoji)
+  const I={
+    prev:'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM20 6v12L9 12z"/></svg>',
+    back10:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8L7 12l4 4"/><path d="M7 12h7a4 4 0 1 1-4 4"/></svg>',
+    pause:'<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+    fwd10:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8l4 4-4 4"/><path d="M17 12h-7a4 4 0 1 0 4 4"/></svg>',
+    next:'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM4 6l11 6L4 18z"/></svg>',
+    cc:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M9 10.5a2 2 0 1 0 0 3M15 10.5a2 2 0 1 0 0 3" stroke-linecap="round"/></svg>',
+    vol:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9a4 4 0 0 1 0 6" stroke-linecap="round"/></svg>',
+    airplay:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 17H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-1"/><path d="M12 15l4 5H8z" fill="currentColor"/></svg>'
+  };
+  document.getElementById('transport').innerHTML=`
+    <button class="hover:text-white">${I.prev}</button>
+    <button class="hover:text-white">${I.back10}</button>
+    <button class="size-16 grid place-items-center rounded-full bg-white text-black">${I.pause}</button>
+    <button class="hover:text-white">${I.fwd10}</button>
+    <button class="hover:text-white">${I.next}</button>
+    <div class="absolute right-0 flex items-center gap-6 text-white/70">
+      <button class="hover:text-white">${I.cc}</button><button class="hover:text-white">${I.vol}</button><button class="hover:text-white">${I.airplay}</button>
+    </div>`;
+
+  const t10=document.getElementById('top10');
+  D.slice(0,10).forEach((m,i)=>t10.insertAdjacentHTML('beforeend',`
+    <div class="shrink-0 flex items-end gap-1">
+      <span class="num text-[110px] w-[58px] text-right -mr-1">${i+1}</span>
+      <button onclick="play(${i})" class="text-left">
+        <img src="${m.p}" class="card w-[150px] aspect-[2/3] object-cover rounded-xl"/>
+        <div class="mt-2 text-sm text-white/70">${genres[i%genres.length]}</div>
+      </button>
+    </div>`));
+
+  const rec=document.getElementById('recent');
+  D.slice(8,20).forEach((m,i)=>rec.insertAdjacentHTML('beforeend',`
+    <button onclick="play(${i+8})" class="shrink-0 text-left">
+      <div class="relative w-[150px]">
+        <img src="${m.p}" class="card w-[150px] aspect-[2/3] object-cover rounded-xl"/>
+        <span class="absolute top-2 right-2 text-[10px] font-semibold bg-black/60 backdrop-blur px-1.5 py-0.5 rounded pointer-events-none">viewrr</span>
+      </div>
+      <div class="mt-2 text-sm text-white/80 w-[150px] truncate">${m.t}</div>
+    </button>`));
+
+  const feat=document.getElementById('featured');
+  D.slice(0,8).forEach((m,i)=>feat.insertAdjacentHTML('beforeend',`
+    <button onclick="play(${i})" class="card shrink-0 relative rounded-2xl overflow-hidden" style="width:460px">
+      <img src="${m.b}" class="w-full aspect-video object-cover"/>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+      <span class="absolute bottom-3 left-4 text-xs font-medium bg-white/15 backdrop-blur px-2.5 py-1 rounded-full">${badges[i%badges.length]}</span>
+      <span class="absolute bottom-3 right-4 text-base font-semibold drop-shadow">${m.t}</span>
+    </button>`));
+</script>
+</body>
+</html>

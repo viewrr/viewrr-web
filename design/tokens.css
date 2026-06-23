@@ -1,0 +1,45 @@
+/* viewrr design tokens — Apple-TV design language.
+   Source of truth extracted from design/index.html. Wire into Tailwind theme (#103). */
+:root {
+  /* color */
+  --vr-bg-page:    #0b0b0d;   /* outside the app window */
+  --vr-bg-app:     #1c1c1e;   /* main content surface */
+  --vr-surface:    #161617;   /* raised surfaces */
+  --vr-glass:      rgba(20,20,22,.6);   /* translucent nav (blur 24px, saturate 180%) */
+  --vr-text:       #ffffff;
+  --vr-text-muted: rgba(255,255,255,.55);
+  --vr-text-soft:  rgba(255,255,255,.70);
+  --vr-accent:     #ff5470;   /* viewrr accent (Apple uses system pink) */
+  --vr-focus-ring: rgba(255,255,255,.92);
+
+  /* radius */
+  --vr-r-card:   12px;   /* poster (rounded-xl) */
+  --vr-r-large:  16px;   /* landscape card + window (rounded-2xl) */
+  --vr-r-pill:   9999px;
+
+  /* type (system SF stack) */
+  --vr-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --vr-t-wordmark: 20px;  /* 600 */
+  --vr-t-nav:      15px;
+  --vr-t-row:      22px;  /* 700, row headers */
+  --vr-t-card:     14px;
+  --vr-t-sub:      13px;
+  --vr-t-numeral: 110px;  /* 800, Top-10 */
+
+  /* space */
+  --vr-pad-content-x: 40px;  /* px-10 */
+  --vr-pad-content-y: 32px;  /* py-8  */
+  --vr-gap-row:       16px;  /* poster rows */
+  --vr-gap-top10:     24px;
+  --vr-gap-section:   40px;
+
+  /* media aspect + sizes */
+  --vr-poster-w:    150px;   /* aspect 2:3 */
+  --vr-landscape-w: 460px;   /* aspect 16:9 */
+
+  /* focus / motion (the Apple-TV feel) */
+  --vr-focus-scale: 1.06;
+  --vr-ease:        cubic-bezier(.2,.7,.2,1);
+  --vr-dur:         .25s;
+  --vr-card-shadow: 0 18px 44px -12px rgba(0,0,0,.85);
+}
