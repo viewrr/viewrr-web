@@ -33,6 +33,8 @@ in the **Apple-TV design language**. This is greenfield — no fork.
 - **Playback devices** use a **per-device stremio-key** (long-lived, in the stream URL path), minted by an authenticated session. TVs can't OAuth.
 
 ## API contract — COORDINATE WITH BACKEND AGENT
+
+**v0 contract is now written:** [`docs/api/client-api.md`](https://github.com/viewrr/viewrr/blob/main/docs/api/client-api.md) in `viewrr/viewrr`. Build against it. It marks what exists (✅) vs gaps the backend is closing (🔜). File issues for missing pieces.
 The server's client-facing REST API is **not yet finalized** — today the server exposes a
 Stremio addon (`/stremio/{key}/catalog|meta|stream`), HLS stream routes
 (`/stream/k/{key}/{id}/playlist.m3u8`), `/auth/*`, and assorted REST. A clean client API
