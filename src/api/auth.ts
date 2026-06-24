@@ -7,9 +7,12 @@ import type { AuthTokens } from './types'
 const TOKEN_KEY = 'viewrr_token'
 const REFRESH_KEY = 'viewrr_refresh'
 
+// Guarded so the module is safe where localStorage is absent (SSR, tests).
+const ls = typeof localStorage !== 'undefined' ? localStorage : null
+
 export const session = reactive<{ token: string | null; refreshToken: string | null }>({
-  token: localStorage.getItem(TOKEN_KEY),
-  refreshToken: localStorage.getItem(REFRESH_KEY),
+  token: ls?.getItem(TOKEN_KEY) ?? null,
+  refreshToken: ls?.getItem(REFRESH_KEY) ?? null,
 })
 
 export const isAuthenticated = () => !!session.token
@@ -17,10 +20,10 @@ export const isAuthenticated = () => !!session.token
 function persist(t: AuthTokens | null) {
   session.token = t?.token ?? null
   session.refreshToken = t?.refreshToken ?? null
-  if (t?.token) localStorage.setItem(TOKEN_KEY, t.token)
-  else localStorage.removeItem(TOKEN_KEY)
-  if (t?.refreshToken) localStorage.setItem(REFRESH_KEY, t.refreshToken)
-  else localStorage.removeItem(REFRESH_KEY)
+  if (t?.token) ls?.setItem(TOKEN_KEY, t.token)
+  else ls?.removeItem(TOKEN_KEY)
+  if (t?.refreshToken) ls?.setItem(REFRESH_KEY, t.refreshToken)
+  else ls?.removeItem(REFRESH_KEY)
 }
 
 async function post(path: string, body?: unknown): Promise<AuthTokens> {
