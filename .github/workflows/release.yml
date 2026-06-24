@@ -1,13 +1,20 @@
 name: Release & Deploy
 
-# Push a version tag (e.g. v1.2.0) → deploy to the VPS via Dokploy,
-# then cut a GitHub Release with an auto-generated changelog.
+# Push a version tag (e.g. v1.2.0):
+#   1. build the image on GitHub's runners (NOT the VPS) and push to GHCR
+#   2. trigger Dokploy to pull + run the prebuilt image
+#   3. cut a GitHub Release with an auto-generated changelog
+# The VPS never builds — it only pulls a ready image, so it stays light.
 on:
   push:
     tags: ['v*']
 
 permissions:
   contents: write # create the GitHub Release
+  packages: write # push to GHCR
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
   deploy:
@@ -15,14 +22,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # full history so the changelog can diff tags
+          fetch-depth: 0 # full history for the changelog
 
-      - name: Trigger Dokploy deploy
+      - name: Log in to GHCR
+        run: echo "${{ github.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build & push image
+        run: |
+          docker build -t "$IMAGE:${GITHUB_REF_NAME}" -t "$IMAGE:latest" .
+          docker push "$IMAGE:${GITHUB_REF_NAME}"
+          docker push "$IMAGE:latest"
+
+      - name: Trigger Dokploy (pull & redeploy)
         run: curl -fsS -X POST "$DOKPLOY_DEPLOY_WEBHOOK"
         env:
           DOKPLOY_DEPLOY_WEBHOOK: ${{ secrets.DOKPLOY_DEPLOY_WEBHOOK }}
 
-      # Only runs if the deploy trigger above succeeded.
+      # Only runs if build/push/deploy above succeeded.
       - name: Create GitHub Release
         run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
         env:
