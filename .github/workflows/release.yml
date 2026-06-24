@@ -1,0 +1,29 @@
+name: Release & Deploy
+
+# Push a version tag (e.g. v1.2.0) → deploy to the VPS via Dokploy,
+# then cut a GitHub Release with an auto-generated changelog.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # create the GitHub Release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so the changelog can diff tags
+
+      - name: Trigger Dokploy deploy
+        run: curl -fsS -X POST "$DOKPLOY_DEPLOY_WEBHOOK"
+        env:
+          DOKPLOY_DEPLOY_WEBHOOK: ${{ secrets.DOKPLOY_DEPLOY_WEBHOOK }}
+
+      # Only runs if the deploy trigger above succeeded.
+      - name: Create GitHub Release
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
