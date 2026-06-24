@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Title } from '../types'
 
-defineProps<{ title: Title; badge?: string }>()
+defineProps<{ title: Title; badge?: string; progress?: number }>()
 defineEmits<{ select: [] }>()
 </script>
 
@@ -20,5 +20,11 @@ defineEmits<{ select: [] }>()
     <span class="absolute bottom-3 right-4 text-base font-semibold drop-shadow">
       {{ title.title }}
     </span>
+    <div
+      v-if="progress != null"
+      class="absolute bottom-0 inset-x-0 h-1 bg-white/20"
+    >
+      <div class="h-full bg-accent" :style="{ width: `${Math.min(Math.max(progress, 0), 1) * 100}%` }" />
+    </div>
   </button>
 </template>
