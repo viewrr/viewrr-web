@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { api } from '../api/client'
 import { CATALOG } from '../data/catalog'
 import type { Title } from '../types'
-import PosterCard from './PosterCard.vue'
+import PosterCard from '../components/PosterCard.vue'
 
 const router = useRouter()
 

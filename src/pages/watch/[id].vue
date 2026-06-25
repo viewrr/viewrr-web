@@ -1,11 +1,15 @@
+<route>
+{ "props": true }
+</route>
+
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from '../api/client'
-import { API_BASE } from '../api/config'
-import { CATALOG } from '../data/catalog'
-import type { Title } from '../types'
-import type { WatchEventType } from '../api/types'
+import { api } from '../../api/client'
+import { API_BASE } from '../../api/config'
+import { CATALOG } from '../../data/catalog'
+import type { Title } from '../../types'
+import type { WatchEventType } from '../../api/types'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()

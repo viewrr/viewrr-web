@@ -1,11 +1,15 @@
+<route>
+{ "props": true }
+</route>
+
 <script setup lang="ts">
 import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from '../api/client'
-import { CATALOG, GENRES } from '../data/catalog'
-import type { Title } from '../types'
-import Shelf from './Shelf.vue'
-import PosterCard from './PosterCard.vue'
+import { api } from '../../api/client'
+import { CATALOG, GENRES } from '../../data/catalog'
+import type { Title } from '../../types'
+import Shelf from '../../components/Shelf.vue'
+import PosterCard from '../../components/PosterCard.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()

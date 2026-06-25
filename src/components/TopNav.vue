@@ -4,7 +4,12 @@ import { useSpatialNav } from '../composables/useSpatialNav'
 
 const router = useRouter()
 
-const links = ['Home', 'Movies', 'Shows', 'Music']
+const links = [
+  { label: 'Home', to: '/' },
+  { label: 'Movies', to: '/movies' },
+  { label: 'Shows', to: '/shows' },
+  { label: 'Music', to: '/music' },
+]
 
 // Register the nav bar as a spatial-navigation participant so Up from the top
 // shelf lands on the nav links and Down returns to the content (#107).
@@ -16,13 +21,14 @@ useSpatialNav()
     <div class="h-16 px-content-x flex items-center gap-9">
       <span class="text-xl font-semibold tracking-tight">viewrr</span>
       <div class="flex items-center gap-7 text-[15px] text-muted">
-        <a
-          v-for="(link, i) in links"
-          :key="link"
-          href="#"
+        <RouterLink
+          v-for="link in links"
+          :key="link.to"
+          :to="link.to"
           data-nav
-          :class="i === 0 ? 'text-fg font-medium' : 'hover:text-fg'"
-        >{{ link }}</a>
+          class="hover:text-fg"
+          exact-active-class="text-fg font-medium"
+        >{{ link.label }}</RouterLink>
       </div>
       <div class="ml-auto flex items-center gap-5">
         <button data-nav class="size-9 grid place-items-center rounded-full hover:bg-white/10" aria-label="Search" @click="router.push('/search')">

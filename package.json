@@ -23,6 +23,7 @@
     "@vue/tsconfig": "^0.9.1",
     "happy-dom": "^20.10.6",
     "typescript": "~6.0.2",
+    "unplugin-vue-router": "^0.19.2",
     "vite": "^8.1.0",
     "vitest": "^4.1.9",
     "vue-tsc": "^3.3.5"

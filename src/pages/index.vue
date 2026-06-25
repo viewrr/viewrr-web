@@ -4,10 +4,10 @@ import { useRouter } from 'vue-router'
 import { api } from '../api/client'
 import { CATALOG, GENRES, BADGES } from '../data/catalog'
 import type { Title } from '../types'
-import Shelf from './Shelf.vue'
-import PosterCard from './PosterCard.vue'
-import Top10Card from './Top10Card.vue'
-import LandscapeCard from './LandscapeCard.vue'
+import Shelf from '../components/Shelf.vue'
+import PosterCard from '../components/PosterCard.vue'
+import Top10Card from '../components/Top10Card.vue'
+import LandscapeCard from '../components/LandscapeCard.vue'
 
 const router = useRouter()
 
