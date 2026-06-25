@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { api } from '../api/client'
 import { CATALOG, GENRES, BADGES } from '../data/catalog'
 import type { Title } from '../types'
+import Hero from '../components/Hero.vue'
 import Shelf from '../components/Shelf.vue'
 import PosterCard from '../components/PosterCard.vue'
 import Top10Card from '../components/Top10Card.vue'
@@ -53,7 +54,11 @@ function select(t: Title) {
 </script>
 
 <template>
-  <div class="px-content-x py-content-y space-y-section">
+  <div>
+    <!-- Apple-TV hero: full-bleed featured backdrop under the glass nav. -->
+    <Hero v-if="featured.length" :title="featured[0]" />
+
+    <div class="px-content-x py-content-y space-y-section -mt-16 relative">
     <Shelf v-if="continueWatching.length" heading="Continue Watching" gap="gap-5">
       <LandscapeCard
         v-for="r in continueWatching"
@@ -116,5 +121,6 @@ function select(t: Title) {
         @select="select(t)"
       />
     </Shelf>
+    </div>
   </div>
 </template>

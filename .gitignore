@@ -29,3 +29,8 @@ dist-ssr
 
 # claude worktrees/local
 .claude/
+
+# playwright
+test-results/
+playwright-report/
+/playwright/.cache/
