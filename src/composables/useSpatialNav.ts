@@ -16,6 +16,20 @@ const KEY_TO_DIR: Record<string, Dir> = {
   ArrowDown: 'down',
 }
 
+// True when focus is in a field where arrow keys mean "move the text cursor /
+// change the value", not "move spatial focus": text inputs, textareas, selects,
+// and contenteditable. When this holds we skip ALL arrow handling and let the
+// browser handle the key natively. Up/Down could in principle "escape" a
+// single-line input, but mixing native + spatial movement on the same press is
+// surprising; skipping every arrow keeps cursor behaviour predictable. Users
+// still leave the field with Tab/Shift-Tab (never intercepted here).
+function isEditableTarget(el: Element | null): boolean {
+  if (!el) return false
+  const tag = el.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true
+  return (el as HTMLElement).isContentEditable
+}
+
 // Module-level registry: a single global keydown listener is shared across all
 // components. Each mounting component bumps the refcount; the last to unmount
 // tears the listener down. This keeps initialization inside owned files (no
@@ -105,6 +119,9 @@ function onKeydown(e: KeyboardEvent): void {
   if (!dir) return
 
   const active = document.activeElement as HTMLElement | null
+  // While typing in an editable field, arrows belong to the browser (move the
+  // text cursor / change the value) — don't hijack them for spatial nav.
+  if (isEditableTarget(active)) return
   // Origin = the focused nav element, else the current roving target (first
   // card after seed), else the first focusable. This keeps the first arrow
   // press starting on a card rather than the first nav link.
