@@ -48,6 +48,20 @@ test('nav link routes to a content page', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Movies')
 })
 
+test('cards tilt toward the pointer on hover', async ({ page }) => {
+  await page.goto('/')
+  await page.waitForLoadState('networkidle')
+  const card = page.locator('.row .card').first() // shelf art (has v-tilt)
+  const box = await card.boundingBox()
+  if (!box) throw new Error('no card')
+  // Move pointer to the card's top-right → expect a 3D rotate transform.
+  await page.mouse.move(box.x + box.width * 0.85, box.y + box.height * 0.15)
+  await page.waitForTimeout(100)
+  const transform = await card.evaluate((el) => el.style.transform)
+  expect(transform).toContain('rotateY')
+  expect(transform).toContain('perspective')
+})
+
 test('poster click opens detail', async ({ page }) => {
   await page.goto('/')
   await page.waitForTimeout(400)

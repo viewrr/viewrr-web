@@ -7,6 +7,7 @@ defineEmits<{ select: [] }>()
 
 <template>
   <button
+    v-tilt
     data-nav
     class="card shrink-0 relative rounded-large overflow-hidden w-[460px]"
     @click="$emit('select')"

@@ -15,6 +15,7 @@ defineEmits<{ select: [] }>()
   <button data-nav class="shrink-0 text-left" @click="$emit('select')">
     <div class="relative w-[150px]">
       <img
+        v-tilt
         :src="title.poster ?? ''"
         :alt="title.title"
         class="card w-[150px] aspect-[2/3] object-cover rounded-card"
