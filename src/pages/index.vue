@@ -22,16 +22,18 @@ const top10 = ref<Title[]>(CATALOG.slice(0, 10))
 const recommended = ref<Title[]>(CATALOG.slice(4, 16))
 const recent = ref<Title[]>(CATALOG.slice(8, 20))
 const featured = ref<Title[]>(CATALOG.slice(0, 8))
+const albums = ref<Title[]>(CATALOG.slice(2, 14))
 
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1)
 
 onMounted(async () => {
-  const [cw, t, rec, r, f] = await Promise.allSettled([
+  const [cw, t, rec, r, f, a] = await Promise.allSettled([
     api.continueWatching(),
     api.top10(),
     api.recommendations(),
     api.recentlyAdded(),
     api.featured(),
+    api.musicAlbums(),
   ])
   if (cw.status === 'fulfilled' && cw.value.length)
     continueWatching.value = cw.value.map((item) => ({
@@ -42,6 +44,7 @@ onMounted(async () => {
   if (rec.status === 'fulfilled' && rec.value.length) recommended.value = rec.value
   if (r.status === 'fulfilled' && r.value.length) recent.value = r.value
   if (f.status === 'fulfilled' && f.value.length) featured.value = f.value.slice(0, 8)
+  if (a.status === 'fulfilled' && a.value.length) albums.value = a.value
 })
 
 function select(t: Title) {
@@ -100,6 +103,16 @@ function select(t: Title) {
         :key="t.id"
         :title="t"
         :badge="BADGES[i % BADGES.length]"
+        @select="select(t)"
+      />
+    </Shelf>
+
+    <Shelf heading="Music Albums" gap="gap-row">
+      <PosterCard
+        v-for="t in albums"
+        :key="t.id"
+        :title="t"
+        :caption="t.title"
         @select="select(t)"
       />
     </Shelf>

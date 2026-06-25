@@ -14,5 +14,7 @@ export default defineConfig({
   ],
   test: {
     environment: 'happy-dom',
+    // Don't scan git-worktree copies (parallel-agent isolation lives here).
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**'],
   },
 })
