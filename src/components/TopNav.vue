@@ -18,19 +18,20 @@ useSpatialNav()
 
 <template>
   <nav class="sticky top-0 z-30 glass">
-    <div class="h-16 px-content-x flex items-center gap-9">
+    <div class="relative h-16 px-content-x flex items-center">
       <span class="text-xl font-semibold tracking-tight">viewrr</span>
-      <div class="flex items-center gap-7 text-[15px] text-muted">
+      <!-- Centered tabs with an active pill (tvOS top-nav). -->
+      <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 text-[15px]">
         <RouterLink
           v-for="link in links"
           :key="link.to"
           :to="link.to"
           data-nav
-          class="hover:text-fg"
-          exact-active-class="text-fg font-medium"
+          class="px-3.5 py-1.5 rounded-full text-muted hover:text-fg transition-colors"
+          exact-active-class="bg-white/10 text-fg"
         >{{ link.label }}</RouterLink>
       </div>
-      <div class="ml-auto flex items-center gap-5">
+      <div class="ml-auto flex items-center gap-4">
         <button data-nav class="size-9 grid place-items-center rounded-full hover:bg-white/10" aria-label="Search" @click="router.push('/search')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="7" />

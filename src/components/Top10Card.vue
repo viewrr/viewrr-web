@@ -6,9 +6,9 @@ defineEmits<{ select: [] }>()
 </script>
 
 <template>
-  <div class="shrink-0 flex items-end gap-1">
-    <span class="num text-[110px] w-[58px] text-right -mr-1">{{ rank }}</span>
-    <button data-nav class="text-left" @click="$emit('select')">
+  <div class="shrink-0 flex items-end">
+    <span class="num text-[150px] w-[72px] text-right -mr-4 relative z-0">{{ rank }}</span>
+    <button data-nav class="relative z-10 text-left" @click="$emit('select')">
       <img
         :src="title.poster ?? ''"
         :alt="title.title"

@@ -12,8 +12,9 @@ useSpatialNav()
 
 <template>
   <section>
-    <h2 class="text-[22px] font-bold mb-4 flex items-center gap-1">
-      {{ heading }} <span class="text-white/40">›</span>
+    <h2 class="text-xl font-semibold tracking-tight mb-4 flex items-center gap-1.5">
+      {{ heading }}
+      <span class="text-white/25 text-lg font-normal translate-y-px">›</span>
     </h2>
     <div class="row flex overflow-x-auto pb-3" :class="gap">
       <slot />
@@ -30,8 +31,8 @@ useSpatialNav()
   outline: none;
 }
 [data-nav]:focus-visible .card {
-  transform: scale(1.06);
-  box-shadow: 0 18px 44px -12px rgba(0, 0, 0, 0.85),
+  transform: scale(1.07) translateY(-6px);
+  box-shadow: 0 26px 56px -14px rgba(0, 0, 0, 0.9),
     0 0 0 3px var(--color-focus);
   z-index: 10;
   outline: none;

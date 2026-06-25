@@ -21,10 +21,10 @@ for (const r of ROUTES) {
 
 test('home renders all shelves', async ({ page }) => {
   await page.goto('/')
-  const headings = await page.locator('h2').allInnerTexts()
-  expect(headings.join(' ')).toContain('Continue Watching')
-  expect(headings.join(' ')).toContain('Top 10')
-  expect(headings.join(' ')).toContain('Music Albums')
+  // Auto-retrying assertions — robust under parallel load.
+  for (const name of ['Continue Watching', 'Top 10 Movies this week', 'Music Albums']) {
+    await expect(page.getByRole('heading', { name })).toBeVisible()
+  }
 })
 
 test('arrow keys move spatial focus between cards', async ({ page }) => {
