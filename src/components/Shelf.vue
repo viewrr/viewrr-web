@@ -12,11 +12,12 @@ useSpatialNav()
 
 <template>
   <section>
-    <h2 class="text-xl font-semibold tracking-tight mb-4 flex items-center gap-1.5">
+    <h2 class="text-xl font-semibold tracking-tight mb-2 flex items-center gap-1.5">
       {{ heading }}
       <span class="text-white/25 text-lg font-normal translate-y-px">›</span>
     </h2>
-    <div class="row flex overflow-x-auto pb-3" :class="gap">
+    <!-- pt absorbs the focus lift+ring so the top isn't clipped by overflow. -->
+    <div class="row flex overflow-x-auto pt-4 pb-3 px-1 -mx-1" :class="gap">
       <slot />
     </div>
   </section>
