@@ -39,6 +39,6 @@ export interface WatchEvent {
 }
 
 export interface AuthTokens {
-  token: string
+  accessToken: string
   refreshToken?: string
 }

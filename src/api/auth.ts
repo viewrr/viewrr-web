@@ -18,9 +18,9 @@ export const session = reactive<{ token: string | null; refreshToken: string | n
 export const isAuthenticated = () => !!session.token
 
 function persist(t: AuthTokens | null) {
-  session.token = t?.token ?? null
+  session.token = t?.accessToken ?? null
   session.refreshToken = t?.refreshToken ?? null
-  if (t?.token) ls?.setItem(TOKEN_KEY, t.token)
+  if (t?.accessToken) ls?.setItem(TOKEN_KEY, t.accessToken)
   else ls?.removeItem(TOKEN_KEY)
   if (t?.refreshToken) ls?.setItem(REFRESH_KEY, t.refreshToken)
   else ls?.removeItem(REFRESH_KEY)
@@ -45,7 +45,7 @@ export async function refresh(): Promise<string> {
   if (!session.refreshToken) throw new Error('no refresh token')
   const t = await post('/auth/refresh', { refreshToken: session.refreshToken })
   persist(t)
-  return t.token
+  return t.accessToken
 }
 
 export async function logout() {
