@@ -1,32 +1,59 @@
-// Types mirror docs/api/client-api.md (v0 contract) in viewrr/viewrr.
-// Fields the contract marks nullable are `| null`; fields not on every row are optional.
+// Types mirror docs.viewrr.stream/openapi.yaml (the source of truth).
+// Fields nullable per spec; only id+title are guaranteed on MediaItem.
 
 export interface MediaItem {
   id: string
   title: string
-  cleanTitle?: string
-  showTitle?: string
-  season?: number
-  episode?: number
-  year?: number
+  cleanTitle?: string | null
+  showTitle?: string | null
+  seasonNumber?: number | null
+  episodeNumber?: number | null
+  year?: number | null
+  durationSecs?: number | null
+  hlsPath?: string | null
+  contentRating?: string | null
   poster: string | null
   backdrop: string | null
   overview?: string | null
-  durationSecs?: number
-  contentRating?: string
-  genres?: string[] // not in v0 contract yet; rendered when the API adds it
+  // Not in the v0 API; kept optional so genre UI degrades to a placeholder.
+  genres?: string[]
 }
 
-export interface ContinueWatchingItem extends MediaItem {
+export interface ContinueWatchingItem {
+  mediaId: string
+  title: string
+  hlsPath?: string | null
+  durationSecs?: number | null
   positionSecs: number
+  percent: number // 0–100
+}
+
+export interface Recommendation {
+  mediaId: string
+  title: string
+  hlsPath?: string | null
+  score: number
+  rank: number
+}
+
+export interface Album {
+  album: string
+  trackCount: number
+  artist: string
+}
+
+export interface ShowView {
+  showTitle: string
+  episodeCount: number
+  seasonCount: number
 }
 
 export interface PlaybackInfo {
   url: string
-  type: 'hls'
-  drm: null
-  subtitles: { lang: string; url: string }[]
+  type: string
   startPositionSecs: number
+  subtitlesUrl: string
+  trickplayUrl: string
 }
 
 export type WatchEventType = 'start' | 'progress' | 'pause' | 'stop'

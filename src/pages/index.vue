@@ -36,19 +36,34 @@ onMounted(async () => {
     api.featured(),
     api.musicAlbums(),
   ])
+  // Continue Watching / Recommendations / Albums aren't MediaItems — adapt
+  // their distinct shapes (mediaId, percent, album name) to what cards consume.
   if (cw.status === 'fulfilled' && cw.value.length)
     continueWatching.value = cw.value.map((item) => ({
-      title: item,
-      progress: clamp01(item.positionSecs / (item.durationSecs || 1)),
+      title: { id: item.mediaId, title: item.title, poster: null, backdrop: null },
+      progress: clamp01(item.percent / 100),
     }))
   if (t.status === 'fulfilled' && t.value.length) top10.value = t.value.slice(0, 10)
-  if (rec.status === 'fulfilled' && rec.value.length) recommended.value = rec.value
+  if (rec.status === 'fulfilled' && rec.value.length)
+    recommended.value = rec.value.map((r) => ({
+      id: r.mediaId,
+      title: r.title,
+      poster: null,
+      backdrop: null,
+    }))
   if (r.status === 'fulfilled' && r.value.length) recent.value = r.value
   if (f.status === 'fulfilled' && f.value.length) featured.value = f.value.slice(0, 8)
-  if (a.status === 'fulfilled' && a.value.length) albums.value = a.value
+  if (a.status === 'fulfilled' && a.value.length)
+    albums.value = a.value.map((al) => ({
+      id: '', // albums have no media id / detail route yet
+      title: al.album,
+      poster: null,
+      backdrop: null,
+    }))
 })
 
 function select(t: Title) {
+  if (!t.id) return // album cards have no detail route
   router.push(`/title/${t.id}`)
 }
 </script>

@@ -2,6 +2,9 @@ import { request } from './http'
 import type {
   MediaItem,
   ContinueWatchingItem,
+  Recommendation,
+  Album,
+  ShowView,
   PlaybackInfo,
   WatchEvent,
 } from './types'
@@ -11,15 +14,15 @@ import type {
 export const api = {
   // Home rows
   continueWatching: () => request<ContinueWatchingItem[]>('/me/continue-watching'),
-  recommendations: () => request<MediaItem[]>('/me/recommendations'),
+  recommendations: () => request<Recommendation[]>('/me/recommendations'),
   recentlyAdded: () => request<MediaItem[]>('/media?sort=createdAt&order=desc'),
-  top10: () => request<MediaItem[]>('/home/top'), // 🔜
-  featured: () => request<MediaItem[]>('/home/featured'), // 🔜
-  series: () => request<MediaItem[]>('/series'),
-  musicAlbums: () => request<MediaItem[]>('/music/albums'),
+  top10: () => request<MediaItem[]>('/home/top'),
+  featured: () => request<MediaItem[]>('/home/featured'),
+  series: () => request<ShowView[]>('/series'),
+  musicAlbums: () => request<Album[]>('/music/albums'),
 
   // Detail / search
-  mediaDetail: (id: string) => request<MediaItem>(`/media/${id}`), // 🔜
+  mediaDetail: (id: string) => request<MediaItem>(`/media/${id}`),
   search: (q: string) => request<MediaItem[]>(`/media/search?q=${encodeURIComponent(q)}`),
 
   // Playback
@@ -34,4 +37,12 @@ export const api = {
 
 export { ApiError } from './http'
 export { login, logout, refresh, isAuthenticated, session } from './auth'
-export type { MediaItem, ContinueWatchingItem, PlaybackInfo, WatchEvent } from './types'
+export type {
+  MediaItem,
+  ContinueWatchingItem,
+  Recommendation,
+  Album,
+  ShowView,
+  PlaybackInfo,
+  WatchEvent,
+} from './types'
