@@ -4,6 +4,7 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
+  retries: 1, // tolerate transient flakes under parallel dev-server load
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:5173',

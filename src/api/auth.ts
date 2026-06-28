@@ -17,6 +17,11 @@ export const session = reactive<{ token: string | null; refreshToken: string | n
 
 export const isAuthenticated = () => !!session.token
 
+/** Set the session from externally-obtained tokens (e.g. OIDC/passkey flow). */
+export function setSession(t: AuthTokens | null) {
+  persist(t)
+}
+
 function persist(t: AuthTokens | null) {
   session.token = t?.accessToken ?? null
   session.refreshToken = t?.refreshToken ?? null

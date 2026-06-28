@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '../api/client'
+import { oidcEnabled, loginWithPasskey } from '../api/oidc'
 
 const router = useRouter()
 
@@ -40,6 +41,24 @@ async function onSubmit() {
       @submit.prevent="onSubmit"
     >
       <h1 class="text-2xl font-semibold tracking-tight text-center">viewrr</h1>
+
+      <!-- Passkey / biometric sign-in via Keycloak (shown when OIDC is configured). -->
+      <template v-if="oidcEnabled">
+        <button
+          data-nav
+          type="button"
+          class="login-field w-full bg-fg/95 text-page rounded-full px-4 py-3 font-medium inline-flex items-center justify-center gap-2"
+          @click="loginWithPasskey"
+        >
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true">
+            <path d="M12 2a5 5 0 00-5 5v3a5 5 0 0010 0V7a5 5 0 00-5-5zm-7 9a2 2 0 014 0c0 3 1 5 3 6H6a3 3 0 01-3-3v-1a2 2 0 012-2zm14 0a2 2 0 012 2v1a3 3 0 01-3 3h-6c2-1 3-3 3-6a2 2 0 014 0z" />
+          </svg>
+          Sign in with passkey
+        </button>
+        <div class="flex items-center gap-3 text-xs text-muted">
+          <span class="h-px flex-1 bg-white/10" /> or <span class="h-px flex-1 bg-white/10" />
+        </div>
+      </template>
 
       <div class="flex flex-col gap-3">
         <input
