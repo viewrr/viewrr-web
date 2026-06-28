@@ -21,6 +21,16 @@ api.mediaDetail(props.id).then((m) => (title.value = m)).catch(() => {})
 const video = ref<HTMLVideoElement | null>(null)
 const hasVideo = ref(false) // true once a real stream is attached
 
+// Auto-hiding chrome (tvOS): fades after 3s idle while playing; any input or a
+// pause brings it back.
+const chromeVisible = ref(true)
+let hideTimer: ReturnType<typeof setTimeout> | undefined
+function showChrome() {
+  chromeVisible.value = true
+  clearTimeout(hideTimer)
+  if (playing.value) hideTimer = setTimeout(() => (chromeVisible.value = false), 3000)
+}
+
 // Real playback state when a stream is attached; otherwise these drive the
 // demo chrome (so the player still looks alive without a backend).
 const DEMO_DURATION = 108 * 60
@@ -115,11 +125,14 @@ async function attach(el: HTMLVideoElement, url: string, start: number) {
 }
 
 function onKey(e: KeyboardEvent) {
+  showChrome()
   if (e.key === 'Escape' || e.key === 'Backspace') goBack()
 }
 
 onMounted(async () => {
   window.addEventListener('keydown', onKey)
+  window.addEventListener('mousemove', showChrome)
+  showChrome()
   const src = await resolveSrc()
   const el = video.value
   if (!src || !el) return // demo mode
@@ -145,6 +158,8 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKey)
+  window.removeEventListener('mousemove', showChrome)
+  clearTimeout(hideTimer)
   if (hasVideo.value) report('stop')
   hls?.destroy()
 })
@@ -156,6 +171,7 @@ function togglePlay() {
   } else {
     playing.value = !playing.value
   }
+  showChrome() // reveal chrome on toggle; stays if now paused
 }
 
 function seekRelative(deltaSeconds: number) {
@@ -194,7 +210,10 @@ function goBack() {
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-black text-fg select-none">
+  <div
+    class="fixed inset-0 bg-black text-fg select-none"
+    :class="{ 'cursor-none': !chromeVisible }"
+  >
     <!-- Real stream when resolved; backdrop poster behind it as the first paint
          and the fallback when no stream is available. -->
     <video
@@ -219,7 +238,8 @@ function goBack() {
 
     <!-- TOP CHROME: back + title -->
     <header
-      class="absolute inset-x-0 top-0 flex items-center gap-4 px-content-x py-6"
+      class="absolute inset-x-0 top-0 flex items-center gap-4 px-content-x py-6 transition-opacity duration-300"
+      :class="{ 'opacity-0 pointer-events-none': !chromeVisible }"
     >
       <button
         type="button"
@@ -243,7 +263,10 @@ function goBack() {
     </header>
 
     <!-- BOTTOM CHROME: scrubber + transport + secondary controls -->
-    <footer class="absolute inset-x-0 bottom-0 px-content-x pb-10 space-y-5">
+    <footer
+      class="absolute inset-x-0 bottom-0 px-content-x pb-10 space-y-5 transition-opacity duration-300"
+      :class="{ 'opacity-0 pointer-events-none': !chromeVisible }"
+    >
       <!-- Scrubber with accent fill -->
       <div class="flex items-center gap-3 text-xs tabular-nums text-soft">
         <span class="w-12 text-right">{{ elapsed }}</span>

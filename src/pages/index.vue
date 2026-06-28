@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api/client'
 import { CATALOG, GENRES, BADGES } from '../data/catalog'
@@ -26,6 +26,18 @@ const featured = ref<Title[]>(CATALOG.slice(0, 8))
 const albums = ref<Title[]>(CATALOG.slice(2, 14))
 
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1)
+
+// Hero cycles through the first few featured titles (tvOS auto-rotate).
+const heroIndex = ref(0)
+const heroTitle = computed(() => featured.value[heroIndex.value] ?? featured.value[0])
+let heroTimer: ReturnType<typeof setInterval> | undefined
+onMounted(() => {
+  heroTimer = setInterval(() => {
+    const n = Math.min(featured.value.length, 5)
+    if (n) heroIndex.value = (heroIndex.value + 1) % n
+  }, 8000)
+})
+onBeforeUnmount(() => clearInterval(heroTimer))
 
 onMounted(async () => {
   const [cw, t, rec, r, f, a] = await Promise.allSettled([
@@ -71,7 +83,9 @@ function select(t: Title) {
 <template>
   <div>
     <!-- Apple-TV hero: full-bleed featured backdrop under the glass nav. -->
-    <Hero v-if="featured.length" :title="featured[0]" />
+    <Transition name="hero-fade" mode="out-in">
+      <Hero v-if="heroTitle" :key="heroTitle.id" :title="heroTitle" />
+    </Transition>
 
     <div class="px-content-x py-content-y space-y-section -mt-16 relative">
     <Shelf v-if="continueWatching.length" heading="Continue Watching" gap="gap-5">
@@ -139,3 +153,15 @@ function select(t: Title) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.hero-fade-enter-active,
+.hero-fade-leave-active {
+  transition: opacity 0.6s ease;
+}
+.hero-fade-enter-from,
+.hero-fade-leave-to {
+  opacity: 0;
+}
+</style>
+
