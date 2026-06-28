@@ -14,9 +14,9 @@ import type { WatchEventType } from '../../api/types'
 const props = defineProps<{ id: string }>()
 const router = useRouter()
 
-const title = computed<Title | undefined>(() =>
-  CATALOG.find((t) => t.id === props.id),
-)
+// Real title from /media/{id}; mock fallback for the instant first paint.
+const title = ref<Title | undefined>(CATALOG.find((t) => t.id === props.id))
+api.mediaDetail(props.id).then((m) => (title.value = m)).catch(() => {})
 
 const video = ref<HTMLVideoElement | null>(null)
 const hasVideo = ref(false) // true once a real stream is attached
@@ -92,18 +92,23 @@ async function resolveSrc(): Promise<{ url: string; start: number } | null> {
 }
 
 async function attach(el: HTMLVideoElement, url: string, start: number) {
-  if (el.canPlayType('application/vnd.apple.mpegurl')) {
-    el.src = url // Safari plays HLS natively
+  // hls.js first: it works everywhere except Safari. Chrome's native
+  // canPlayType('…mpegurl') can falsely report "maybe" but can't actually
+  // play HLS — so only fall back to native when MSE/hls.js is unavailable.
+  const { default: Hls } = await import('hls.js')
+  if (Hls.isSupported()) {
+    const inst = new Hls()
+    hls = inst
+    inst.on(Hls.Events.ERROR, (_e, data) => {
+      if (!data.fatal) return
+      if (data.type === Hls.ErrorTypes.NETWORK_ERROR) inst.startLoad()
+      else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) inst.recoverMediaError()
+      else inst.destroy()
+    })
+    inst.attachMedia(el)
+    inst.loadSource(url)
   } else {
-    const { default: Hls } = await import('hls.js') // load only when needed
-    if (Hls.isSupported()) {
-      const inst = new Hls()
-      hls = inst
-      inst.loadSource(url)
-      inst.attachMedia(el)
-    } else {
-      el.src = url
-    }
+    el.src = url // Safari (native HLS) or last resort
   }
   if (start > 0) el.currentTime = start
   el.play().catch(() => {})
@@ -197,6 +202,8 @@ function goBack() {
       class="absolute inset-0 h-full w-full object-contain bg-black"
       :poster="title?.backdrop ?? ''"
       playsinline
+      autoplay
+      muted
       @click="togglePlay"
     ></video>
     <img
