@@ -4,6 +4,10 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
+# Bake the Hub URL at build time (empty → client uses mock fallback).
+# Set via --build-arg / the release workflow's VITE_API_BASE repo variable.
+ARG VITE_API_BASE=""
+ENV VITE_API_BASE=$VITE_API_BASE
 # Artifact only — typecheck/tests run in CI, not in the deploy image.
 RUN bunx vite build
 
