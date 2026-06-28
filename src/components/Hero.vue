@@ -7,7 +7,7 @@ const router = useRouter()
 </script>
 
 <template>
-  <section class="relative h-[78vh] min-h-[460px] w-full overflow-hidden">
+  <section class="relative h-[58vh] min-h-[340px] md:h-[78vh] md:min-h-[460px] w-full overflow-hidden">
     <img
       :src="title.backdrop ?? title.poster ?? ''"
       :alt="title.title"
@@ -16,8 +16,8 @@ const router = useRouter()
     <div class="hero-bottom absolute inset-0"></div>
     <div class="hero-left absolute inset-0"></div>
 
-    <div class="absolute inset-x-0 bottom-0 px-content-x pb-content-y space-y-4">
-      <h1 class="text-5xl md:text-6xl font-bold tracking-tight max-w-3xl drop-shadow-lg">
+    <div class="absolute inset-x-0 bottom-0 px-5 md:px-content-x pb-6 md:pb-content-y space-y-4">
+      <h1 class="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight max-w-3xl drop-shadow-lg">
         {{ title.title }}
       </h1>
       <p

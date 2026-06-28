@@ -83,7 +83,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
       <!-- Hero content overlaps the bottom of the backdrop -->
       <div
-        class="absolute inset-x-0 bottom-0 px-content-x pb-content-y space-y-row"
+        class="absolute inset-x-0 bottom-0 px-5 md:px-content-x pb-6 md:pb-content-y space-y-row"
       >
         <h1 class="text-4xl md:text-5xl font-bold max-w-2xl">
           {{ title.title }}
@@ -127,7 +127,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     </section>
 
     <!-- More Like This shelf reuses Shelf + PosterCard -->
-    <div class="px-content-x py-content-y">
+    <div class="px-5 md:px-content-x py-6 md:py-content-y">
       <Shelf heading="More Like This" gap="gap-row">
         <PosterCard
           v-for="t in moreLikeThis"
@@ -143,7 +143,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   <!-- Unknown id: explicit, not a silent blank screen. -->
   <div
     v-else
-    class="px-content-x py-content-y flex flex-col items-start gap-row"
+    class="px-5 md:px-content-x py-6 md:py-content-y flex flex-col items-start gap-row"
   >
     <h1 class="text-3xl font-bold">Title not found</h1>
     <p class="text-soft">No title matches id "{{ id }}".</p>

@@ -9,7 +9,7 @@ defineEmits<{ select: [] }>()
   <button
     v-tilt
     data-nav
-    class="card shrink-0 relative rounded-large overflow-hidden w-[460px]"
+    class="card shrink-0 relative rounded-large overflow-hidden w-[300px] sm:w-[380px] md:w-[460px]"
     @click="$emit('select')"
   >
     <img :src="title.backdrop ?? ''" :alt="title.title" class="w-full aspect-video object-cover" />

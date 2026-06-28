@@ -15,9 +15,9 @@ const select = (t: Title) => router.push('/title/' + t.id)
 </script>
 
 <template>
-  <div class="px-content-x py-content-y">
+  <div class="px-5 md:px-content-x py-6 md:py-content-y">
     <h1 class="text-[22px] font-bold mb-6">{{ heading }}</h1>
-    <div class="grid gap-row [grid-template-columns:repeat(auto-fill,150px)]">
+    <div class="flex flex-wrap justify-center sm:justify-start gap-x-row gap-y-6">
       <PosterCard
         v-for="t in items"
         :key="t.id"

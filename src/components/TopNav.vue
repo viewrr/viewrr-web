@@ -18,20 +18,20 @@ useSpatialNav()
 
 <template>
   <nav class="sticky top-0 z-30 glass">
-    <div class="relative h-16 px-content-x flex items-center">
-      <span class="text-xl font-semibold tracking-tight">viewrr</span>
-      <!-- Centered tabs with an active pill (tvOS top-nav). -->
-      <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 text-[15px]">
+    <div class="relative h-14 md:h-16 px-5 md:px-content-x flex items-center gap-3">
+      <span class="text-xl font-semibold tracking-tight shrink-0">viewrr</span>
+      <!-- Tabs: inline + scrollable on mobile, centered pill bar on md+. -->
+      <div class="row flex items-center gap-1 text-sm md:text-[15px] min-w-0 flex-1 overflow-x-auto md:flex-none md:absolute md:left-1/2 md:-translate-x-1/2">
         <RouterLink
           v-for="link in links"
           :key="link.to"
           :to="link.to"
           data-nav
-          class="px-3.5 py-1.5 rounded-full text-muted hover:text-fg transition-colors"
+          class="shrink-0 whitespace-nowrap px-3 md:px-3.5 py-1.5 rounded-full text-muted hover:text-fg transition-colors"
           exact-active-class="bg-white/10 text-fg"
         >{{ link.label }}</RouterLink>
       </div>
-      <div class="ml-auto flex items-center gap-4">
+      <div class="ml-auto shrink-0 flex items-center gap-3 md:gap-4">
         <button data-nav class="size-9 grid place-items-center rounded-full hover:bg-white/10" aria-label="Search" @click="router.push('/search')">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="7" />

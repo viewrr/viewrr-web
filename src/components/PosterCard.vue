@@ -13,19 +13,19 @@ defineEmits<{ select: [] }>()
 
 <template>
   <button data-nav class="shrink-0 text-left" @click="$emit('select')">
-    <div class="relative w-[150px]">
+    <div class="relative w-[120px] sm:w-[150px]">
       <img
         v-tilt
         :src="title.poster ?? ''"
         :alt="title.title"
-        class="card w-[150px] aspect-[2/3] object-cover rounded-card"
+        class="card w-[120px] sm:w-[150px] aspect-[2/3] object-cover rounded-card"
       />
       <span
         v-if="badge"
         class="absolute top-2 right-2 text-[10px] font-semibold bg-black/60 backdrop-blur px-1.5 py-0.5 rounded pointer-events-none"
       >{{ badge }}</span>
     </div>
-    <div v-if="caption" class="mt-2 text-sm text-soft w-[150px] truncate">
+    <div v-if="caption" class="mt-2 text-sm text-soft w-[120px] sm:w-[150px] truncate">
       {{ caption }}
     </div>
   </button>

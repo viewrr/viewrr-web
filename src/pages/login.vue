@@ -36,7 +36,7 @@ async function onSubmit() {
 <template>
   <div class="min-h-screen bg-page grid place-items-center px-6 font-sans">
     <form
-      class="w-full max-w-[380px] bg-surface rounded-large px-content-x py-content-y flex flex-col gap-6"
+      class="w-full max-w-[380px] bg-surface rounded-large px-5 md:px-content-x py-6 md:py-content-y flex flex-col gap-6"
       @submit.prevent="onSubmit"
     >
       <h1 class="text-2xl font-semibold tracking-tight text-center">viewrr</h1>

@@ -87,7 +87,7 @@ function select(t: Title) {
       <Hero v-if="heroTitle" :key="heroTitle.id" :title="heroTitle" />
     </Transition>
 
-    <div class="px-content-x py-content-y space-y-section -mt-16 relative">
+    <div class="px-5 md:px-content-x py-6 md:py-content-y space-y-section -mt-16 relative">
     <Shelf v-if="continueWatching.length" heading="Continue Watching" gap="gap-5">
       <LandscapeCard
         v-for="r in continueWatching"

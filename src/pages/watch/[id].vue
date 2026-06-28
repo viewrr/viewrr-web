@@ -238,7 +238,7 @@ function goBack() {
 
     <!-- TOP CHROME: back + title -->
     <header
-      class="absolute inset-x-0 top-0 flex items-center gap-4 px-content-x py-6 transition-opacity duration-300"
+      class="absolute inset-x-0 top-0 flex items-center gap-4 px-5 md:px-content-x py-6 transition-opacity duration-300"
       :class="{ 'opacity-0 pointer-events-none': !chromeVisible }"
     >
       <button
@@ -264,7 +264,7 @@ function goBack() {
 
     <!-- BOTTOM CHROME: scrubber + transport + secondary controls -->
     <footer
-      class="absolute inset-x-0 bottom-0 px-content-x pb-10 space-y-5 transition-opacity duration-300"
+      class="absolute inset-x-0 bottom-0 px-5 md:px-content-x pb-10 space-y-5 transition-opacity duration-300"
       :class="{ 'opacity-0 pointer-events-none': !chromeVisible }"
     >
       <!-- Scrubber with accent fill -->
