@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@scure/bip39": "^2.2.0",
     "@tailwindcss/vite": "^4.3.1",
     "hls.js": "^1.6.16",
     "oidc-client-ts": "^3.5.0",
