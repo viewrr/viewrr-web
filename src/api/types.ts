@@ -69,3 +69,35 @@ export interface AuthTokens {
   accessToken: string
   refreshToken?: string
 }
+
+// Payments — opt-in, display-only wallet (ADR p2p-0020; docs/pay/2-seed-derived-evm-wallet-l2-client.md).
+// Non-custodial: the Hub derives the wallet from the account's seed on opt-in and
+// never exposes signing here. No money-movement fields belong on this type (legal #9).
+// Contract PINNED with mesh-hub (2026-07-07):
+//   POST /api/pay/wallet/opt-in -> WalletOptInResponse (idempotent)
+//   GET  /api/pay/wallet        -> WalletStatus
+// There is no opt-out endpoint yet — opt-in is one-way from the client's perspective.
+export interface WalletOptInResponse {
+  address: string
+  optedIn: true
+}
+
+export type WalletStatus =
+  | { optedIn: false }
+  | {
+      optedIn: true
+      address: string
+      // Smallest-unit integer as a decimal string — never a float, to avoid
+      // precision loss. Format client-side using `decimals` (see settings.vue).
+      balanceBaseUnits: string
+      asset: string // e.g. "USDC"
+      decimals: number // e.g. 6
+    }
+
+// Mesh availability — read-only peer/seeding status for the account (ADR p2p-0008 /
+// p2p-0014). Contract is provisional; coordinate with mesh-hub before the Hub lands it.
+export interface MeshStatus {
+  online: boolean
+  peerCount: number
+  sharedBytes: number
+}

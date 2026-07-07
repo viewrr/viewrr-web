@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { isAuthenticated } from '../api/client'
 import { useSpatialNav } from '../composables/useSpatialNav'
 
 const router = useRouter()
@@ -14,6 +15,10 @@ const links = [
 // Register the nav bar as a spatial-navigation participant so Up from the top
 // shelf lands on the nav links and Down returns to the content (#107).
 useSpatialNav()
+
+function onAccountClick() {
+  router.push(isAuthenticated() ? '/settings' : '/login')
+}
 </script>
 
 <template>
@@ -42,7 +47,7 @@ useSpatialNav()
           data-nav
           aria-label="Account"
           class="size-9 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600"
-          @click="router.push('/login')"
+          @click="onAccountClick"
         />
       </div>
     </div>
