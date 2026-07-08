@@ -10,6 +10,10 @@ import type {
   WalletOptInResponse,
   WalletStatus,
   MeshStatus,
+  StorageContributionStatus,
+  StorageContributionRequest,
+  StorageQuoteRequest,
+  StorageQuote,
 } from './types'
 
 // Endpoint methods map 1:1 to docs/api/client-api.md. 🔜 marks server gaps
@@ -46,6 +50,19 @@ export const api = {
 
   // Mesh availability — read-only status (ADR p2p-0008/p2p-0014). 🔜
   meshStatus: () => request<MeshStatus>('/me/mesh'),
+
+  // Storage marketplace — contribution opt-in (dedicate additional GB at a set
+  // price) + buy-storage quote stub (ADR p2p-0022). 🔜 pay-go/mesh-hub: no Hub
+  // route yet; seam only, no real settlement anywhere in this client.
+  storageContribution: () =>
+    request<StorageContributionStatus>('/api/pay/storage/contribution'),
+  storageContributionOptIn: (body: StorageContributionRequest) =>
+    request<StorageContributionStatus>('/api/pay/storage/contribution', {
+      method: 'POST',
+      body,
+    }),
+  storageQuote: (body: StorageQuoteRequest) =>
+    request<StorageQuote>('/api/pay/storage/quote', { method: 'POST', body }),
 }
 
 export { ApiError } from './http'
@@ -61,4 +78,8 @@ export type {
   WalletOptInResponse,
   WalletStatus,
   MeshStatus,
+  StorageContributionStatus,
+  StorageContributionRequest,
+  StorageQuoteRequest,
+  StorageQuote,
 } from './types'

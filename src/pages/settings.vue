@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { api } from '../api/client'
-import type { WalletStatus, MeshStatus } from '../api/client'
+import type { WalletStatus, MeshStatus, StorageContributionStatus, StorageQuote } from '../api/client'
 import { useSpatialNav } from '../composables/useSpatialNav'
+import { storageMarketplaceEnabled } from '../api/flags'
 
 useSpatialNav()
 
@@ -80,6 +81,75 @@ async function enablePayments() {
     paymentsBusy.value = false
   }
 }
+
+// --- Storage marketplace: contribution opt-in + buy-storage stub (ADR p2p-0022) ---
+// Flag-gated (storageMarketplaceEnabled) and rides on the same wallet as the
+// base payments opt-in above, so it only shows once wallet.optedIn is true.
+// Seam only — the "quote" is a placeholder, no settlement happens here.
+const contribution = ref<StorageContributionStatus>({ contributing: false })
+const contributionBusy = ref(false)
+const contributionError = ref<string | null>(null)
+const additionalGbInput = ref('')
+const priceInput = ref('')
+
+const quoteGbInput = ref('')
+const quote = ref<StorageQuote | null>(null)
+const quoteBusy = ref(false)
+const quoteError = ref<string | null>(null)
+
+onMounted(async () => {
+  if (!storageMarketplaceEnabled) return
+  try {
+    contribution.value = await api.storageContribution()
+  } catch {
+    contribution.value = { contributing: false }
+  }
+})
+
+async function submitContribution() {
+  if (contributionBusy.value || contribution.value.contributing) return
+  const additionalGb = Number(additionalGbInput.value)
+  const pricePerGbCents = Number(priceInput.value)
+  if (
+    !Number.isFinite(additionalGb) ||
+    additionalGb <= 0 ||
+    !Number.isFinite(pricePerGbCents) ||
+    pricePerGbCents <= 0
+  ) {
+    contributionError.value = 'Enter a positive GB amount and price.'
+    return
+  }
+
+  contributionError.value = null
+  contributionBusy.value = true
+  try {
+    contribution.value = await api.storageContributionOptIn({ additionalGb, pricePerGbCents })
+  } catch {
+    contributionError.value = 'Storage contribution isn’t available yet — coming soon.'
+  } finally {
+    contributionBusy.value = false
+  }
+}
+
+async function getQuote() {
+  if (quoteBusy.value) return
+  const requestedGb = Number(quoteGbInput.value)
+  if (!Number.isFinite(requestedGb) || requestedGb <= 0) {
+    quoteError.value = 'Enter a positive GB amount.'
+    return
+  }
+
+  quoteError.value = null
+  quote.value = null
+  quoteBusy.value = true
+  try {
+    quote.value = await api.storageQuote({ requestedGb })
+  } catch {
+    quoteError.value = 'Quotes aren’t available yet — coming soon.'
+  } finally {
+    quoteBusy.value = false
+  }
+}
 </script>
 
 <template>
@@ -132,6 +202,94 @@ async function enablePayments() {
         </div>
       </div>
       <p v-else-if="paymentsLoaded" class="text-sm text-muted">Not enabled.</p>
+    </section>
+
+    <!-- Storage marketplace — contribution opt-in + buy-storage stub (seam only) -->
+    <section
+      v-if="storageMarketplaceEnabled && wallet.optedIn"
+      class="bg-surface rounded-large px-5 md:px-content-x py-6 space-y-4"
+    >
+      <div>
+        <h2 class="text-xl font-semibold tracking-tight mb-1">Storage marketplace</h2>
+        <p class="text-sm text-muted max-w-md">
+          Dedicate additional storage to the mesh at a price you set, or request
+          storage from peers. Seam only — no real settlement happens yet.
+        </p>
+      </div>
+
+      <div class="rounded-card bg-app px-4 py-4 space-y-3">
+        <h3 class="text-sm font-semibold">Contribute additional storage</h3>
+        <p v-if="contribution.contributing" class="text-sm text-soft">
+          Contributing {{ contribution.additionalGb }} GB at
+          {{ ((contribution.pricePerGbCents ?? 0) / 100).toFixed(2) }} USDC/GB.
+        </p>
+        <form v-else class="flex flex-wrap items-end gap-3" @submit.prevent="submitContribution">
+          <label class="flex flex-col gap-1 text-xs text-muted">
+            Additional GB
+            <input
+              v-model="additionalGbInput"
+              data-nav
+              type="number"
+              min="1"
+              step="1"
+              class="w-28 bg-page text-fg placeholder:text-muted rounded-card px-3 py-2"
+            />
+          </label>
+          <label class="flex flex-col gap-1 text-xs text-muted">
+            Price (¢/GB)
+            <input
+              v-model="priceInput"
+              data-nav
+              type="number"
+              min="1"
+              step="1"
+              class="w-28 bg-page text-fg placeholder:text-muted rounded-card px-3 py-2"
+            />
+          </label>
+          <button
+            data-nav
+            type="submit"
+            :disabled="contributionBusy"
+            class="bg-accent text-fg rounded-full px-4 py-2 font-medium transition-opacity disabled:opacity-50"
+          >
+            {{ contributionBusy ? 'Saving…' : 'Start contributing' }}
+          </button>
+        </form>
+        <p v-if="contributionError" class="text-accent text-sm" role="alert">
+          {{ contributionError }}
+        </p>
+      </div>
+
+      <div class="rounded-card bg-app px-4 py-4 space-y-3">
+        <h3 class="text-sm font-semibold">Buy storage</h3>
+        <form class="flex flex-wrap items-end gap-3" @submit.prevent="getQuote">
+          <label class="flex flex-col gap-1 text-xs text-muted">
+            Requested GB
+            <input
+              v-model="quoteGbInput"
+              data-nav
+              type="number"
+              min="1"
+              step="1"
+              class="w-28 bg-page text-fg placeholder:text-muted rounded-card px-3 py-2"
+            />
+          </label>
+          <button
+            data-nav
+            type="submit"
+            :disabled="quoteBusy"
+            class="bg-fg/95 text-page rounded-full px-4 py-2 font-medium transition-opacity disabled:opacity-50"
+          >
+            {{ quoteBusy ? 'Getting quote…' : 'Get quote' }}
+          </button>
+        </form>
+        <p v-if="quoteError" class="text-accent text-sm" role="alert">{{ quoteError }}</p>
+        <p v-else-if="quote" class="text-sm text-soft">
+          Estimated quote: {{ (quote.estimatedPriceCents / 100).toFixed(2) }}
+          {{ quote.currency }} for {{ quote.requestedGb }} GB — placeholder only, no
+          settlement occurs.
+        </p>
+      </div>
     </section>
 
     <!-- Mesh status -->

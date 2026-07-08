@@ -101,3 +101,31 @@ export interface MeshStatus {
   peerCount: number
   sharedBytes: number
 }
+
+// Storage marketplace — contribution opt-in (ADR p2p-0022, storage-escrow).
+// Dedicate ADDITIONAL storage beyond the base payments wallet, at a price the
+// user sets. Rides on the same wallet as payments opt-in (settings.vue only
+// shows this once `wallet.optedIn`). Contract provisional — pay-go/mesh-hub
+// haven't landed the Hub route yet (seam only, behind storageMarketplaceEnabled).
+export interface StorageContributionStatus {
+  contributing: boolean
+  additionalGb?: number
+  pricePerGbCents?: number
+}
+
+export interface StorageContributionRequest {
+  additionalGb: number
+  pricePerGbCents: number
+}
+
+// "Buy storage" surface — seam only. Returns a placeholder quote; no real
+// settlement happens anywhere in this client (legal #9 still open).
+export interface StorageQuoteRequest {
+  requestedGb: number
+}
+
+export interface StorageQuote {
+  requestedGb: number
+  estimatedPriceCents: number
+  currency: string
+}
