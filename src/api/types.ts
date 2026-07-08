@@ -128,4 +128,7 @@ export interface StorageQuote {
   requestedGb: number
   estimatedPriceCents: number
   currency: string
+  // Placeholder ETA for provisioning the requested storage — seam only, not a
+  // real scheduling signal until mesh-hub's tier-placement config lands.
+  estimatedEtaSeconds: number
 }

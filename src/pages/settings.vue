@@ -36,6 +36,17 @@ function formatBalance(raw: string, decimals: number): string {
   return `${whole}.${frac}`
 }
 
+// Placeholder ETA formatting for the buy-storage quote stub — seam only, not
+// wired to any real scheduling data yet (mesh-hub slice-2, tier-placement).
+function formatEta(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`
+  const minutes = seconds / 60
+  if (minutes < 60) return `~${Math.round(minutes)} min`
+  const hours = minutes / 60
+  if (hours < 24) return `~${Math.round(hours)} hr`
+  return `~${Math.round(hours / 24)} day${Math.round(hours / 24) === 1 ? '' : 's'}`
+}
+
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`
   const units = ['KB', 'MB', 'GB', 'TB']
@@ -286,7 +297,8 @@ async function getQuote() {
         <p v-if="quoteError" class="text-accent text-sm" role="alert">{{ quoteError }}</p>
         <p v-else-if="quote" class="text-sm text-soft">
           Estimated quote: {{ (quote.estimatedPriceCents / 100).toFixed(2) }}
-          {{ quote.currency }} for {{ quote.requestedGb }} GB — placeholder only, no
+          {{ quote.currency }} for {{ quote.requestedGb }} GB, ready in
+          {{ formatEta(quote.estimatedEtaSeconds) }} — placeholder only, no
           settlement occurs.
         </p>
       </div>

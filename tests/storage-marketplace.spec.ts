@@ -44,7 +44,14 @@ test.describe('storage marketplace', () => {
       return route.fulfill({ json: { contributing: false } })
     })
     await page.route('**/api/pay/storage/quote', (route) =>
-      route.fulfill({ json: { requestedGb: 10, estimatedPriceCents: 250, currency: 'USDC' } }),
+      route.fulfill({
+        json: {
+          requestedGb: 10,
+          estimatedPriceCents: 250,
+          currency: 'USDC',
+          estimatedEtaSeconds: 900,
+        },
+      }),
     )
 
     await page.goto('/settings')
@@ -57,6 +64,8 @@ test.describe('storage marketplace', () => {
 
     await page.getByLabel('Requested GB').fill('10')
     await page.getByRole('button', { name: 'Get quote' }).click()
-    await expect(page.getByText(/Estimated quote: 2\.50 USDC for 10 GB/)).toBeVisible()
+    await expect(
+      page.getByText(/Estimated quote: 2\.50 USDC for 10 GB, ready in ~15 min/),
+    ).toBeVisible()
   })
 })
