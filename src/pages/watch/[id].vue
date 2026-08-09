@@ -393,12 +393,13 @@ function goBack() {
             @click="toggleMute"
           >
             <svg v-if="muted" viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
-              <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />
-              <path d="M17 9l4 6M21 9l-4 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M4 9.5v5h3.2L12 18V6L7.2 9.5H4z" fill="currentColor" />
+              <path d="M16 10l4 4M20 10l-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
             </svg>
             <svg v-else viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
-              <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />
-              <path d="M16 8a5 5 0 010 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M4 9.5v5h3.2L12 18V6L7.2 9.5H4z" fill="currentColor" />
+              <path d="M15.5 9.5a3.5 3.5 0 010 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M18 7a7 7 0 010 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
             </svg>
           </button>
         </div>

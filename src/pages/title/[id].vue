@@ -3,7 +3,7 @@
 </route>
 
 <script setup lang="ts">
-import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../../api/client'
 import { CATALOG, GENRES } from '../../data/catalog'
@@ -13,6 +13,10 @@ import PosterCard from '../../components/PosterCard.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
+
+// Fall back to a gradient wash on missing art OR a failed backdrop load.
+const broken = ref(false)
+watch(() => props.id, () => (broken.value = false))
 
 // Fetch real detail from /media/{id}; fall back to mock when the Hub is down or
 // the endpoint is still a Phase-20 gap. mock find is the instant first paint.
@@ -73,12 +77,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     <section class="relative">
       <div class="relative h-[64vh] min-h-[420px] w-full overflow-hidden">
         <img
-          v-if="title.backdrop"
+          v-if="title.backdrop && !broken"
           :src="title.backdrop"
           :alt="title.title"
           class="absolute inset-0 h-full w-full object-cover"
+          @error="broken = true"
         />
-        <div v-else class="absolute inset-0 bg-app"></div>
+        <div v-else class="absolute inset-0 bg-gradient-to-b from-surface to-app"></div>
         <!-- bottom + left gradients keep text legible over art -->
         <div class="hero-fade-bottom absolute inset-0"></div>
         <div class="hero-fade-left absolute inset-0"></div>

@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { Title } from '../types'
+import MediaFallback from './MediaFallback.vue'
+
+// Fall back to the branded tile on missing art OR a failed image load.
+const broken = ref(false)
 
 defineProps<{ title: Title; badge?: string; progress?: number }>()
 defineEmits<{ select: [] }>()
@@ -13,14 +18,13 @@ defineEmits<{ select: [] }>()
     @click="$emit('select')"
   >
     <img
-      v-if="title.backdrop"
+      v-if="title.backdrop && !broken"
       :src="title.backdrop"
       :alt="title.title"
       class="w-full aspect-video object-cover"
+      @error="broken = true"
     />
-    <div v-else class="w-full aspect-video bg-surface grid place-items-center px-4 text-center">
-      <span class="text-sm text-muted line-clamp-2">{{ title.title }}</span>
-    </div>
+    <MediaFallback v-else aspect="landscape" class="w-full" />
     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
     <span
       v-if="badge"
