@@ -46,7 +46,7 @@ function onAccountClick() {
         <button
           data-nav
           aria-label="Account"
-          class="size-9 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600"
+          class="size-9 rounded-full bg-gradient-to-br from-white/25 to-white/10"
           @click="onAccountClick"
         />
       </div>

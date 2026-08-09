@@ -12,6 +12,7 @@
   --color-muted: rgba(255, 255, 255, 0.55);
   --color-soft: rgba(255, 255, 255, 0.70);
   --color-accent: #ff5470;
+  --color-error: #ff453a; /* Apple systemRed — distinct from the pink brand accent */
   --color-focus: rgba(255, 255, 255, 0.92);
 
   /* radius (pill = rounded-full) */

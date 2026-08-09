@@ -9,10 +9,12 @@ const router = useRouter()
 <template>
   <section class="relative h-[58vh] min-h-[340px] md:h-[78vh] md:min-h-[460px] w-full overflow-hidden">
     <img
+      v-if="title.backdrop || title.poster"
       :src="title.backdrop ?? title.poster ?? ''"
       :alt="title.title"
       class="absolute inset-0 h-full w-full object-cover"
     />
+    <div v-else class="absolute inset-0 bg-app"></div>
     <div class="hero-bottom absolute inset-0"></div>
     <div class="hero-left absolute inset-0"></div>
 

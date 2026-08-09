@@ -24,9 +24,9 @@ useSpatialNav()
 </template>
 
 <!-- Global focus-ring bridge for spatial nav (#107).
-     The focus ring lives on the .card <img>, but the focusable element is the
-     wrapping <button data-nav>. When a card button receives keyboard focus we
-     mirror the hover/.card:focus-visible treatment onto its inner .card. -->
+     The focus ring lives on the .card element (poster/backdrop), but the focusable
+     element is the wrapping data-nav button. When a card button receives keyboard
+     focus we mirror the hover/.card:focus-visible treatment onto its inner .card. -->
 <style>
 [data-nav]:focus-visible {
   outline: none;

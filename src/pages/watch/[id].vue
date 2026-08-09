@@ -35,6 +35,8 @@ function showChrome() {
 // demo chrome (so the player still looks alive without a backend).
 const DEMO_DURATION = 108 * 60
 const playing = ref(true)
+// Autoplay requires muted (browser policy); the Volume control / `m` key unmute.
+const muted = ref(true)
 const currentSecs = ref(0)
 const durationSecs = ref(DEMO_DURATION)
 const demoProgress = ref(34) // percent, used only in demo mode
@@ -126,7 +128,41 @@ async function attach(el: HTMLVideoElement, url: string, start: number) {
 
 function onKey(e: KeyboardEvent) {
   showChrome()
-  if (e.key === 'Escape' || e.key === 'Backspace') goBack()
+  if (e.key === 'Escape' || e.key === 'Backspace') {
+    goBack()
+    return
+  }
+  // Let a focused native control own its own keys (scrubber arrows, button Space).
+  const t = e.target as HTMLElement | null
+  if (
+    t &&
+    (t.tagName === 'INPUT' ||
+      t.tagName === 'BUTTON' ||
+      t.tagName === 'SELECT' ||
+      t.tagName === 'TEXTAREA' ||
+      t.isContentEditable)
+  ) {
+    return
+  }
+  // Remote/keyboard transport for the fullscreen player.
+  switch (e.key) {
+    case ' ':
+    case 'k':
+      e.preventDefault()
+      togglePlay()
+      break
+    case 'ArrowLeft':
+      e.preventDefault()
+      seekRelative(-10)
+      break
+    case 'ArrowRight':
+      e.preventDefault()
+      seekRelative(10)
+      break
+    case 'm':
+      toggleMute()
+      break
+  }
 }
 
 onMounted(async () => {
@@ -153,6 +189,7 @@ onMounted(async () => {
     playing.value = false
     report('pause')
   })
+  el.addEventListener('volumechange', () => (muted.value = el.muted))
   attach(el, src.url, src.start)
 })
 
@@ -172,6 +209,12 @@ function togglePlay() {
     playing.value = !playing.value
   }
   showChrome() // reveal chrome on toggle; stays if now paused
+}
+
+function toggleMute() {
+  // The `:muted` binding applies this to the element; volumechange keeps it honest.
+  muted.value = !muted.value
+  showChrome()
 }
 
 function seekRelative(deltaSeconds: number) {
@@ -222,12 +265,12 @@ function goBack() {
       :poster="title?.backdrop ?? ''"
       playsinline
       autoplay
-      muted
+      :muted="muted"
       @click="togglePlay"
     ></video>
     <img
-      v-if="!hasVideo && title"
-      :src="title.backdrop ?? ''"
+      v-if="!hasVideo && title?.backdrop"
+      :src="title.backdrop"
       :alt="title.title"
       class="absolute inset-0 h-full w-full object-cover"
     />
@@ -341,26 +384,21 @@ function goBack() {
           </button>
         </div>
 
-        <!-- secondary controls: CC / volume / AirPlay -->
+        <!-- secondary controls: volume / mute -->
         <div class="flex items-center gap-6">
-          <button type="button" aria-label="Subtitles" class="ctrl">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8" />
-              <path d="M7 13h3M13 13h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <button
+            type="button"
+            :aria-label="muted ? 'Unmute' : 'Mute'"
+            class="ctrl"
+            @click="toggleMute"
+          >
+            <svg v-if="muted" viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />
+              <path d="M17 9l4 6M21 9l-4 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
             </svg>
-          </button>
-
-          <button type="button" aria-label="Volume" class="ctrl">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
+            <svg v-else viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
               <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" />
               <path d="M16 8a5 5 0 010 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </button>
-
-          <button type="button" aria-label="AirPlay" class="ctrl">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
-              <path d="M5 17H4a1 1 0 01-1-1V6a1 1 0 011-1h16a1 1 0 011 1v10a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-              <path d="M12 14l5 6H7l5-6z" fill="currentColor" />
             </svg>
           </button>
         </div>

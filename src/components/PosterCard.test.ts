@@ -19,8 +19,9 @@ describe('PosterCard', () => {
     expect(w.emitted('select')).toHaveLength(1)
   })
 
-  it('renders empty src when poster is null', () => {
+  it('renders a titled placeholder instead of a broken image when poster is null', () => {
     const w = mount(PosterCard, { props: { title: { ...title, poster: null } } })
-    expect(w.find('img').attributes('src')).toBe('')
+    expect(w.find('img').exists()).toBe(false)
+    expect(w.text()).toContain('Madness')
   })
 })

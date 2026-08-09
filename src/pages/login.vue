@@ -79,7 +79,7 @@ async function onSubmit() {
         />
       </div>
 
-      <p v-if="error" class="text-accent text-sm text-center -mt-2" role="alert">
+      <p v-if="error" class="text-error text-sm text-center -mt-2" role="alert">
         {{ error }}
       </p>
 

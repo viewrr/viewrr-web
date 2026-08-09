@@ -56,11 +56,12 @@ function goHome() {
   router.push('/')
 }
 
-// Escape/Back returns to where you came from (home on a deep link).
+// Return to where you came from (home on a deep link) — Esc/Back or the button.
+function goBack() {
+  window.history.length > 1 ? router.back() : router.push('/')
+}
 function onKey(e: KeyboardEvent) {
-  if (e.key === 'Escape' || e.key === 'Backspace') {
-    window.history.length > 1 ? router.back() : router.push('/')
-  }
+  if (e.key === 'Escape' || e.key === 'Backspace') goBack()
 }
 onMounted(() => window.addEventListener('keydown', onKey))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
@@ -72,14 +73,34 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     <section class="relative">
       <div class="relative h-[64vh] min-h-[420px] w-full overflow-hidden">
         <img
-          :src="title.backdrop ?? ''"
+          v-if="title.backdrop"
+          :src="title.backdrop"
           :alt="title.title"
           class="absolute inset-0 h-full w-full object-cover"
         />
+        <div v-else class="absolute inset-0 bg-app"></div>
         <!-- bottom + left gradients keep text legible over art -->
         <div class="hero-fade-bottom absolute inset-0"></div>
         <div class="hero-fade-left absolute inset-0"></div>
       </div>
+
+      <button
+        data-nav
+        type="button"
+        aria-label="Back"
+        class="absolute left-5 md:left-content-x top-6 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full glass text-fg transition-transform duration-200 hover:scale-105 focus-visible:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        @click="goBack"
+      >
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" aria-hidden="true">
+          <path
+            d="M15 5l-7 7 7 7"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
 
       <!-- Hero content overlaps the bottom of the backdrop -->
       <div
@@ -108,6 +129,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
         <div class="pt-1">
           <button
+            data-nav
             type="button"
             class="card inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3 text-base font-semibold text-fg"
             @click="play"

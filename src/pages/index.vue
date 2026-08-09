@@ -16,14 +16,18 @@ const router = useRouter()
 // is unreachable (dev without backend). Real rows replace it when a call resolves.
 type Resume = { title: Title; progress: number }
 
+// ponytail: distinct per-row selections so the no-backend view doesn't read as
+// one repeated wall of the same posters. The real Hub replaces each row with its
+// own set below; these indices only shape the mock / first paint.
+const pick = (...idxs: number[]) => idxs.map((i) => CATALOG[i])
+
 const continueWatching = ref<Resume[]>(
-  CATALOG.slice(0, 5).map((title, i) => ({ title, progress: 0.3 + i * 0.1 })),
+  pick(3, 9, 14, 17, 1).map((title, i) => ({ title, progress: 0.72 - i * 0.13 })),
 )
 const top10 = ref<Title[]>(CATALOG.slice(0, 10))
-const recommended = ref<Title[]>(CATALOG.slice(4, 16))
-const recent = ref<Title[]>(CATALOG.slice(8, 20))
-const featured = ref<Title[]>(CATALOG.slice(0, 8))
-const albums = ref<Title[]>(CATALOG.slice(2, 14))
+const recommended = ref<Title[]>(pick(12, 15, 18, 11, 16, 13, 2, 17, 6, 14))
+const recent = ref<Title[]>(pick(19, 17, 16, 14, 13, 10, 8, 7, 5, 4))
+const featured = ref<Title[]>(pick(6, 11, 13, 0, 15, 4))
 
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1)
 
@@ -40,16 +44,15 @@ onMounted(() => {
 onBeforeUnmount(() => clearInterval(heroTimer))
 
 onMounted(async () => {
-  const [cw, t, rec, r, f, a] = await Promise.allSettled([
+  const [cw, t, rec, r, f] = await Promise.allSettled([
     api.continueWatching(),
     api.top10(),
     api.recommendations(),
     api.recentlyAdded(),
     api.featured(),
-    api.musicAlbums(),
   ])
-  // Continue Watching / Recommendations / Albums aren't MediaItems — adapt
-  // their distinct shapes (mediaId, percent, album name) to what cards consume.
+  // Continue Watching / Recommendations aren't MediaItems — adapt their distinct
+  // shapes (mediaId, percent) to what cards consume.
   if (cw.status === 'fulfilled' && cw.value.length)
     continueWatching.value = cw.value.map((item) => ({
       title: { id: item.mediaId, title: item.title, poster: null, backdrop: null },
@@ -65,17 +68,10 @@ onMounted(async () => {
     }))
   if (r.status === 'fulfilled' && r.value.length) recent.value = r.value
   if (f.status === 'fulfilled' && f.value.length) featured.value = f.value.slice(0, 8)
-  if (a.status === 'fulfilled' && a.value.length)
-    albums.value = a.value.map((al) => ({
-      id: '', // albums have no media id / detail route yet
-      title: al.album,
-      poster: null,
-      backdrop: null,
-    }))
 })
 
 function select(t: Title) {
-  if (!t.id) return // album cards have no detail route
+  if (!t.id) return // defensive: skip cards without a detail route
   router.push(`/title/${t.id}`)
 }
 </script>
@@ -109,13 +105,12 @@ function select(t: Title) {
       />
     </Shelf>
 
-    <Shelf heading="Recommended" gap="gap-row">
+    <Shelf heading="Recommended for You" gap="gap-row">
       <PosterCard
         v-for="t in recommended"
         :key="t.id"
         :title="t"
         :caption="t.title"
-        badge="viewrr"
         @select="select(t)"
       />
     </Shelf>
@@ -126,7 +121,6 @@ function select(t: Title) {
         :key="t.id"
         :title="t"
         :caption="t.title"
-        badge="viewrr"
         @select="select(t)"
       />
     </Shelf>
@@ -137,16 +131,6 @@ function select(t: Title) {
         :key="t.id"
         :title="t"
         :badge="BADGES[i % BADGES.length]"
-        @select="select(t)"
-      />
-    </Shelf>
-
-    <Shelf heading="Music Albums" gap="gap-row">
-      <PosterCard
-        v-for="t in albums"
-        :key="t.id"
-        :title="t"
-        :caption="t.title"
         @select="select(t)"
       />
     </Shelf>

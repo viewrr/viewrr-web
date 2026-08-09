@@ -73,7 +73,7 @@ onMounted(async () => {
   try {
     mesh.value = await api.meshStatus()
   } catch {
-    meshError.value = 'Mesh status isn’t available yet — backend not connected.'
+    meshError.value = 'Not available yet — you’re not connected to the network.'
   }
 })
 
@@ -195,11 +195,11 @@ async function getQuote() {
         </button>
       </div>
 
-      <p v-if="paymentsError" class="text-accent text-sm" role="alert">
+      <p v-if="paymentsError" class="text-error text-sm" role="alert">
         {{ paymentsError }}
       </p>
       <p v-else-if="wallet.optedIn" class="text-xs text-muted">
-        Opting out isn’t available from here yet.
+        Turned on. You can’t turn this off from here yet.
       </p>
 
       <div v-if="wallet.optedIn" class="rounded-card bg-app px-4 py-4 space-y-2">
@@ -212,7 +212,9 @@ async function getQuote() {
           {{ formatBalance(wallet.balanceBaseUnits, wallet.decimals) }} {{ wallet.asset }}
         </div>
       </div>
-      <p v-else-if="paymentsLoaded" class="text-sm text-muted">Not enabled.</p>
+      <p v-else-if="paymentsLoaded" class="text-sm text-muted">
+        Not enabled. Heads up — turning this on can’t be undone from here yet.
+      </p>
     </section>
 
     <!-- Storage marketplace — contribution opt-in + buy-storage stub (seam only) -->
@@ -223,20 +225,21 @@ async function getQuote() {
       <div>
         <h2 class="text-xl font-semibold tracking-tight mb-1">Storage marketplace</h2>
         <p class="text-sm text-muted max-w-md">
-          Dedicate additional storage to the mesh at a price you set, or request
-          storage from peers. Seam only — no real settlement happens yet.
+          Share spare storage with the network at a price you set, or request
+          storage from other viewers. Preview only — you can’t buy or sell
+          storage yet.
         </p>
       </div>
 
       <div class="rounded-card bg-app px-4 py-4 space-y-3">
         <h3 class="text-sm font-semibold">Contribute additional storage</h3>
         <p v-if="contribution.contributing" class="text-sm text-soft">
-          Contributing {{ contribution.additionalGb }} GB at
-          {{ ((contribution.pricePerGbCents ?? 0) / 100).toFixed(2) }} USDC/GB.
+          Sharing {{ contribution.additionalGb }} GB at
+          {{ ((contribution.pricePerGbCents ?? 0) / 100).toFixed(2) }} USDC per GB.
         </p>
         <form v-else class="flex flex-wrap items-end gap-3" @submit.prevent="submitContribution">
           <label class="flex flex-col gap-1 text-xs text-muted">
-            Additional GB
+            Storage to share (GB)
             <input
               v-model="additionalGbInput"
               data-nav
@@ -247,7 +250,7 @@ async function getQuote() {
             />
           </label>
           <label class="flex flex-col gap-1 text-xs text-muted">
-            Price (¢/GB)
+            Your price (¢ per GB)
             <input
               v-model="priceInput"
               data-nav
@@ -266,7 +269,7 @@ async function getQuote() {
             {{ contributionBusy ? 'Saving…' : 'Start contributing' }}
           </button>
         </form>
-        <p v-if="contributionError" class="text-accent text-sm" role="alert">
+        <p v-if="contributionError" class="text-error text-sm" role="alert">
           {{ contributionError }}
         </p>
       </div>
@@ -275,7 +278,7 @@ async function getQuote() {
         <h3 class="text-sm font-semibold">Buy storage</h3>
         <form class="flex flex-wrap items-end gap-3" @submit.prevent="getQuote">
           <label class="flex flex-col gap-1 text-xs text-muted">
-            Requested GB
+            Storage to buy (GB)
             <input
               v-model="quoteGbInput"
               data-nav
@@ -294,19 +297,25 @@ async function getQuote() {
             {{ quoteBusy ? 'Getting quote…' : 'Get quote' }}
           </button>
         </form>
-        <p v-if="quoteError" class="text-accent text-sm" role="alert">{{ quoteError }}</p>
+        <p v-if="quoteError" class="text-error text-sm" role="alert">{{ quoteError }}</p>
         <p v-else-if="quote" class="text-sm text-soft">
-          Estimated quote: {{ (quote.estimatedPriceCents / 100).toFixed(2) }}
+          Estimated cost: {{ (quote.estimatedPriceCents / 100).toFixed(2) }}
           {{ quote.currency }} for {{ quote.requestedGb }} GB, ready in
-          {{ formatEta(quote.estimatedEtaSeconds) }} — placeholder only, no
-          settlement occurs.
+          {{ formatEta(quote.estimatedEtaSeconds) }}. Estimate only — nothing is
+          purchased yet.
         </p>
       </div>
     </section>
 
     <!-- Mesh status -->
     <section class="bg-surface rounded-large px-5 md:px-content-x py-6 space-y-3">
-      <h2 class="text-xl font-semibold tracking-tight">Mesh status</h2>
+      <div>
+        <h2 class="text-xl font-semibold tracking-tight mb-1">Mesh status</h2>
+        <p class="text-sm text-muted max-w-md">
+          Your connection to viewrr’s peer-to-peer network — the viewers you share
+          streams with.
+        </p>
+      </div>
       <p v-if="meshError" class="text-sm text-muted">{{ meshError }}</p>
       <div v-else-if="mesh" class="grid grid-cols-3 gap-4 text-center">
         <div>
